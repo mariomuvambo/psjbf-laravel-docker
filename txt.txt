@@ -1,0 +1,7 @@
+php artisan tinker
+$user = App\Models\User::where('email', 'usuario@exemplo.com')->first();
+$user->role = 'admin';
+$user->save();
+
+
+php artisan queue:work
