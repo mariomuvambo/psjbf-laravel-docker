@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: laravel-app
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        fromDatabase:
+            name: nome-do-seu-db
+            property: host
+      - key: DB_PORT
+        value: 3306
+      - key: DB_DATABASE
+        fromDatabase:
+            name: nome-do-seu-db
+            property: database
+      - key: DB_USERNAME
+        fromDatabase:
+            name: nome-do-seu-db
+            property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+            name: nome-do-seu-db
+            property: password
