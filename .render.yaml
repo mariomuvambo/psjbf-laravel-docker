@@ -13,20 +13,12 @@ services:
       - key: DB_CONNECTION
         value: mysql
       - key: DB_HOST
-        fromDatabase:
-            name: nome-do-seu-db
-            property: host
+        value: <host>
       - key: DB_PORT
         value: 3306
       - key: DB_DATABASE
-        fromDatabase:
-            name: nome-do-seu-db
-            property: database
+        value: <db_name>
       - key: DB_USERNAME
-        fromDatabase:
-            name: nome-do-seu-db
-            property: user
+        value: <db_user>
       - key: DB_PASSWORD
-        fromDatabase:
-            name: nome-do-seu-db
-            property: password
+        value: <db_pass>
