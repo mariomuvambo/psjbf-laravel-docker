@@ -13,5 +13,6 @@ RUN chown -R application:application /var/www/html \
 # ✅ Permissão para o script de inicialização
 RUN chmod +x /var/www/html/render-start.sh
 
-# Comando para iniciar
-CMD ["./render-start.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
