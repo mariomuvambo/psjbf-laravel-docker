@@ -1,7 +1,6 @@
-# Imagem base do PHP com extensões necessárias
-FROM php:8.2-fpm
+# Etapa 1: imagem PHP com extensões e Composer
+FROM php:8.2-fpm as php
 
-# Instala extensões e dependências do sistema
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
@@ -9,30 +8,31 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     zip \
     unzip \
-    curl \
     git \
+    curl \
     libzip-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# Instala o Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Define o diretório de trabalho
 WORKDIR /var/www/html
-
-# Copia os arquivos da aplicação
 COPY . .
 
-# Instala as dependências do Laravel
 RUN composer install --no-dev --optimize-autoloader
+RUN chown -R www-data:www-data storage bootstrap/cache
 
-# Permissão nas pastas de cache
-RUN chown -R www-data:www-data \
-    /var/www/html/storage \
-    /var/www/html/bootstrap/cache
+# Etapa 2: Nginx + PHP juntos
+FROM nginx:alpine
 
-# Expõe a porta do PHP-FPM
-EXPOSE 9000
+COPY --from=php /usr/local/etc/php /usr/local/etc/php
+COPY --from=php /usr/local/bin/php /usr/local/bin/php
+COPY --from=php /usr/bin/composer /usr/bin/composer
+COPY --from=php /var/www/html /var/www/html
 
-# Comando para iniciar o PHP-FPM
-CMD ["php-fpm"]
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+WORKDIR /var/www/html
+
+EXPOSE 80
+
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
