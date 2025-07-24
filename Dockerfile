@@ -40,6 +40,7 @@ RUN cp .env.example .env && php artisan key:generate
 
 # Copia configs nginx e supervisord
 COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Exponha porta
