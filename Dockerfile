@@ -28,6 +28,8 @@ COPY . .
 
 # Instala dependências
 RUN composer install --no-dev --optimize-autoloader
+RUN cp .env.example .env && php artisan key:generate
+
 
 # Permissões
 RUN chown -R www-data:www-data storage bootstrap/cache \
