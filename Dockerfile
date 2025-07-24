@@ -12,3 +12,5 @@ RUN composer install --no-dev --optimize-autoloader
 # Dar permissões
 RUN chown -R application:application /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+CMD ["./render-start.sh"]
