@@ -10,3 +10,6 @@ php artisan route:cache
 
 echo "Migrando banco de dados..."
 php artisan migrate --force
+
+# ✅ Mantém o servidor ativo
+exec php-fpm
