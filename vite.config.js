@@ -18,4 +18,7 @@ export default defineConfig({
         port: 80,          // Defina a porta como 80
         strictPort: true,  // Garante que a porta 80 seja usada
     },
+     preview: {
+        allowedHosts: ['psjbf.onrender.com'],  // Adicionando o domínio permitido
+    },
 });
