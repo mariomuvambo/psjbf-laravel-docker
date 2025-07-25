@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
-import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
+import laravel from 'laravel-vite-plugin';
 
 export default defineConfig({
     plugins: [
@@ -18,6 +18,10 @@ export default defineConfig({
         port: 80,
     },
     preview: {
-        allowedHosts: ['psjbf.onrender.com'],  // Adiciona o domínio aqui
+        host: '0.0.0.0',
+        port: 80,
+        open: true,  // abre o navegador automaticamente
+        allowedHosts: ['psjbf.onrender.com'], // Configuração para permitir o acesso do Render
     },
+    base: '/', // Isso ajuda a garantir que o Vue funcione corretamente nas rotas
 });
