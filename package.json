@@ -1,9 +1,9 @@
 {
     "private": true,
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "serve": "vite preview --host 0.0.0.0 --port 80"
+        "dev": "vite",           // Para desenvolvimento local
+        "build": "vite build",   // Para build da aplicação
+        "serve": "vite preview --host 0.0.0.0 --port 80" // Para preview na produção
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^4.6.2",
