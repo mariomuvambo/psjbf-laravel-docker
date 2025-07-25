@@ -30,10 +30,6 @@ use App\Http\Controllers\OracaoController;
 | e prefixos conforme necessário.
 */
 
-Route::get('/example', function () {
-    return response()->json(['message' => 'Hello from Laravel!']);
-});
-
 // Autenticação
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
