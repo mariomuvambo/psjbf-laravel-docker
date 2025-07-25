@@ -13,4 +13,8 @@ export default defineConfig({
     build: {
         outDir: 'public/build',  // Laravel espera os arquivos aqui
     },
+     server: {
+      host: '0.0.0.0',
+      port: 80,
+   },
 });
