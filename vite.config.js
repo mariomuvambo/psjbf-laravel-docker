@@ -13,12 +13,14 @@ export default defineConfig({
     build: {
         outDir: 'public/build', // Laravel espera que os arquivos de build fiquem aqui
     },
-    server: {
-        host: '0.0.0.0',  // Força o servidor a escutar em todas as interfaces
-        port: 80,          // Defina a porta como 80
-        strictPort: true,  // Garante que a porta 80 seja usada
-    },
-     preview: {
-        allowedHosts: ['psjbf.onrender.com'],  // Adicionando o domínio permitido
-    },
+   server: {
+    host: '0.0.0.0',  // Pode ser 'localhost' ou '127.0.0.1' em desenvolvimento
+    port: 80, 
+    strictPort: true,  
+    open: true,  // Para abrir a página automaticamente
+},
+preview: {
+    allowedHosts: ['psjbf.onrender.com'],  // Domínio correto para produção
+},
+
 });
