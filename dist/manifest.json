@@ -1,0 +1,171 @@
+{
+  "_vendor-00842b2e.js": {
+    "file": "assets/vendor-00842b2e.js"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf": {
+    "file": "assets/fa-brands-400-808443ae.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2": {
+    "file": "assets/fa-brands-400-d7236a19.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf": {
+    "file": "assets/fa-regular-400-54cf6086.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2": {
+    "file": "assets/fa-regular-400-e3456d12.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf": {
+    "file": "assets/fa-solid-900-d2f05935.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2": {
+    "file": "assets/fa-solid-900-aa759986.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.ttf": {
+    "file": "assets/fa-v4compatibility-30f6abf6.ttf",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.ttf"
+  },
+  "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2": {
+    "file": "assets/fa-v4compatibility-0ce9033c.woff2",
+    "src": "node_modules/@fortawesome/fontawesome-free/webfonts/fa-v4compatibility.woff2"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff": {
+    "file": "assets/bootstrap-icons-f55513b7.woff",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff"
+  },
+  "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2": {
+    "file": "assets/bootstrap-icons-6c757103.woff2",
+    "src": "node_modules/bootstrap-icons/font/fonts/bootstrap-icons.woff2"
+  },
+  "node_modules/canvg/lib/index.es.js": {
+    "file": "assets/index.es-919a4420.js",
+    "imports": [
+      "resources/js/app.js",
+      "_vendor-00842b2e.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "node_modules/canvg/lib/index.es.js"
+  },
+  "node_modules/dompurify/dist/purify.es.mjs": {
+    "file": "assets/purify.es-31816194.js",
+    "isDynamicEntry": true,
+    "src": "node_modules/dompurify/dist/purify.es.mjs"
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-4ed993c7.js",
+    "isEntry": true,
+    "src": "resources/css/app.css"
+  },
+  "resources/js/app.css": {
+    "file": "assets/app-08947b21.css",
+    "src": "resources/js/app.css"
+  },
+  "resources/js/app.js": {
+    "assets": [
+      "assets/img-1-27d4f5ba.jpg",
+      "assets/arjun-mj-UEeiZeKFlks-unsplash-94a49ce3.jpg",
+      "assets/debby-hudson-qa74Yh6-xlc-unsplash-1257e578.jpg",
+      "assets/bootstrap-icons-6c757103.woff2",
+      "assets/bootstrap-icons-f55513b7.woff",
+      "assets/fa-brands-400-d7236a19.woff2",
+      "assets/fa-brands-400-808443ae.ttf",
+      "assets/fa-regular-400-e3456d12.woff2",
+      "assets/fa-regular-400-54cf6086.ttf",
+      "assets/fa-solid-900-aa759986.woff2",
+      "assets/fa-solid-900-d2f05935.ttf",
+      "assets/fa-v4compatibility-0ce9033c.woff2",
+      "assets/fa-v4compatibility-30f6abf6.ttf"
+    ],
+    "css": [
+      "assets/app-08947b21.css"
+    ],
+    "dynamicImports": [
+      "node_modules/dompurify/dist/purify.es.mjs",
+      "node_modules/canvg/lib/index.es.js",
+      "resources/js/views/Home.vue",
+      "resources/js/views/ForgotPassword.vue",
+      "resources/js/views/ResetPassword.vue",
+      "resources/js/views/GoogleSuccess.vue"
+    ],
+    "file": "assets/app-e3a2897b.js",
+    "imports": [
+      "_vendor-00842b2e.js"
+    ],
+    "isEntry": true,
+    "src": "resources/js/app.js"
+  },
+  "resources/js/assets/images/arjun-mj-UEeiZeKFlks-unsplash.jpg": {
+    "file": "assets/arjun-mj-UEeiZeKFlks-unsplash-94a49ce3.jpg",
+    "src": "resources/js/assets/images/arjun-mj-UEeiZeKFlks-unsplash.jpg"
+  },
+  "resources/js/assets/images/debby-hudson-qa74Yh6-xlc-unsplash.jpg": {
+    "file": "assets/debby-hudson-qa74Yh6-xlc-unsplash-1257e578.jpg",
+    "src": "resources/js/assets/images/debby-hudson-qa74Yh6-xlc-unsplash.jpg"
+  },
+  "resources/js/assets/images/img-1.jpg": {
+    "file": "assets/img-1-27d4f5ba.jpg",
+    "src": "resources/js/assets/images/img-1.jpg"
+  },
+  "resources/js/views/ForgotPassword.css": {
+    "file": "assets/ForgotPassword-e5281c5e.css",
+    "src": "resources/js/views/ForgotPassword.css"
+  },
+  "resources/js/views/ForgotPassword.vue": {
+    "css": [
+      "assets/ForgotPassword-e5281c5e.css"
+    ],
+    "file": "assets/ForgotPassword-deb86606.js",
+    "imports": [
+      "_vendor-00842b2e.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/ForgotPassword.vue"
+  },
+  "resources/js/views/GoogleSuccess.css": {
+    "file": "assets/GoogleSuccess-f177abfe.css",
+    "src": "resources/js/views/GoogleSuccess.css"
+  },
+  "resources/js/views/GoogleSuccess.vue": {
+    "css": [
+      "assets/GoogleSuccess-f177abfe.css"
+    ],
+    "file": "assets/GoogleSuccess-1a0df3c4.js",
+    "imports": [
+      "resources/js/app.js",
+      "_vendor-00842b2e.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/GoogleSuccess.vue"
+  },
+  "resources/js/views/Home.vue": {
+    "file": "assets/Home-2b4e057e.js",
+    "imports": [
+      "resources/js/app.js",
+      "_vendor-00842b2e.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/Home.vue"
+  },
+  "resources/js/views/ResetPassword.css": {
+    "file": "assets/ResetPassword-2d5fd0e9.css",
+    "src": "resources/js/views/ResetPassword.css"
+  },
+  "resources/js/views/ResetPassword.vue": {
+    "css": [
+      "assets/ResetPassword-2d5fd0e9.css"
+    ],
+    "file": "assets/ResetPassword-3af997f8.js",
+    "imports": [
+      "_vendor-00842b2e.js",
+      "resources/js/app.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/views/ResetPassword.vue"
+  }
+}

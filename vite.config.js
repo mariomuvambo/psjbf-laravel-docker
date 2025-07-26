@@ -11,16 +11,15 @@ export default defineConfig({
     vue(),
   ],
   build: {
-    outDir: 'public/build', // A pasta de saída será 'public/build', como no Laravel
+    outDir: 'dist', // Aqui você vai configurar a pasta de saída para 'dist'
     rollupOptions: {
       output: {
         manualChunks: {
-          // Aqui você pode configurar manualmente a divisão de chunks se necessário
-          // Por exemplo, se você quiser dividir pacotes de dependências
-          vendor: ['vue', 'axios'], // Exemplo: criar um chunk separado para dependências
+          // Exemplo de configuração de chunk manual
+          vendor: ['vue', 'axios'], // Isso pode ser útil para dependências grandes
         },
       },
     },
-    chunkSizeWarningLimit: 1000, // Ajusta o limite de tamanho de chunk para evitar a advertência
+    chunkSizeWarningLimit: 1000, // Ajuste o limite de chunk para evitar a advertência
   },
 });
