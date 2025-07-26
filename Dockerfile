@@ -1,7 +1,7 @@
-# Usando a imagem oficial do PHP com FPM
+# Usar a imagem base PHP com FPM
 FROM php:8.1-fpm
 
-# Instalar dependências necessárias (como Composer e extensões PHP)
+# Instalar dependências necessárias
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg62-turbo-dev \
@@ -17,14 +17,14 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Copiar o código da aplicação para o container
 COPY . /var/www/html
 
+# Criar o link simbólico para public/storage
+RUN ln -s /var/www/html/storage/app/public /var/www/html/public/storage
+
 # Definir diretório de trabalho
 WORKDIR /var/www/html
 
 # Instalar dependências com o Composer
-RUN composer install --no-dev --optimize-autoloader
-
-# Ajustar permissões para diretórios de cache e logs do Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN composer install
 
 # Expor a porta do PHP-FPM
 EXPOSE 9000
