@@ -21,7 +21,10 @@ COPY . /var/www/html
 WORKDIR /var/www/html
 
 # Instalar dependências com o Composer
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader
+
+# Ajustar permissões para diretórios de cache e logs do Laravel
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Expor a porta do PHP-FPM
 EXPOSE 9000
