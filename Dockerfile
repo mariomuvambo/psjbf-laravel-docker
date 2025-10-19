@@ -1,35 +1,38 @@
-FROM node:20-alpine as build-stage
+FROM node:18 AS build-frontend
 WORKDIR /app
+COPY resources/js ./resources/js
 COPY package*.json ./
-RUN npm install
-COPY . .
-RUN npm run build
+RUN npm install && npm run build
 
 
-FROM php:8.2-fpm-alpine as production-stage
+FROM php:8.2-fpm
+
+
+RUN apt-get update && apt-get install -y \
+    git curl zip unzip libpq-dev libpng-dev libonig-dev libxml2-dev \
+    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd
+
+
 WORKDIR /var/www/html
-
-
-RUN apk add --no-cache \
-    zip unzip git curl libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev \
-    oniguruma-dev icu-dev libzip-dev mysql-client bash postgresql-dev
-
-RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip intl
-
-
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-
 COPY . .
 
 
-COPY --from=build-stage /app/public/build ./public/build
+COPY --from=build-frontend /app/public/js ./public/js
+COPY --from=build-frontend /app/public/css ./public/css
 
 
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader
 
+RUN php -r "if (!file_exists('.env')) copy('.env.example', '.env');"
+RUN php artisan key:generate || true
+
+
+RUN php artisan storage:link || true
+
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 8000
 
-
-CMD php artisan key:generate && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
