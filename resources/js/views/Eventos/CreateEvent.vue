@@ -192,6 +192,14 @@ export default {
 
 
       try {
+
+        // Verifica se já existe evento na data
+      const existingEvent = await axios.get('/events-for-date', { params: { date: this.form.date } });
+      if (existingEvent.data.length > 0) {
+        this.message = '❌ Já existe um evento neste dia.';
+        return;
+      }
+
         if (this.editing && this.editId) {
           await axios.post(`/events/${this.editId}?_method=PUT`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' },
@@ -219,6 +227,14 @@ export default {
       this.editId = event.id;
       this.message = '';
     },
+     async fetchEventsForDate(date) {
+    try {
+      const response = await axios.get('/events-for-date', { params: { date } });
+      this.eventsOnDate = response.data;
+    } catch (error) {
+      console.error(error);
+    }
+  },
     confirmDelete(id) {
       this.confirmId = id;
       if (!this.confirmModalInstance) {

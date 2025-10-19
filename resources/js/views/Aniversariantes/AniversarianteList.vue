@@ -12,11 +12,19 @@
 
       <!-- Main Content Area -->
       <div class="container py-4">
-        <section class="anniversaries row justify-content-center mt-5"> <!-- Adicionando margem superior -->
+        <section class="anniversaries row justify-content-center mt-5">
+          
+          <!-- Mensagem caso não haja aniversariantes -->
+          <div v-if="aniversariantes.length === 0" class="alert alert-info text-center w-100">
+            🎉 Nenhum aniversariante disponível neste momento.
+          </div>
+
+          <!-- Lista de aniversariantes -->
           <div
             v-for="user in aniversariantes"
             :key="user.id"
             class="col-12 col-sm-6 col-md-4 col-lg-3 mb-4"
+            v-else
           >
             <div class="card h-100 shadow-sm text-center">
               <!-- Profile Image -->
@@ -72,6 +80,7 @@
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from 'axios';

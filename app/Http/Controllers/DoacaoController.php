@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Doacao;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class DoacaoController extends Controller
 {
@@ -108,4 +110,19 @@ class DoacaoController extends Controller
         $doacao->delete();
         return response()->noContent();
     }
+
+    public function totalDoacoesPorMes()
+    {
+        $doacoes = DB::table('doacoes')
+            ->select(
+                DB::raw("DATE_FORMAT(data_doacao, '%m/%Y') as mes"),
+                DB::raw('SUM(valor) as total')
+            )
+            ->groupBy('mes')
+            ->orderBy('data_doacao', 'desc')
+            ->get();
+
+        return response()->json($doacoes);
+    }
+
 }

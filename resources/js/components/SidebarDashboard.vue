@@ -96,7 +96,6 @@
 </template>
 
 
-
 <script>
 import axios from 'axios';
 
@@ -111,6 +110,8 @@ export default {
       userData: this.getUserFromStorage(),
       avisosCount: 0,
       navItems: [
+        { label: 'Missas', path: '/Missas', icon: 'bi-alarm', adminOnly: false },
+        { label: 'Leituras', path: '/Leituras', icon: 'bi-book', adminOnly: true },
         { label: 'Usuários', path: '/admin/usuarios', icon: 'bi-people', adminOnly: true },
         { label: 'Aniversariantes', path: '/aniversariantes', icon: 'bi-cake', adminOnly: false },
         { label: 'Doações', path: '/doacoes', icon: 'bi-gift', adminOnly: false },

@@ -9,7 +9,7 @@ class Doacao extends Model
 {
     use HasFactory;
 
-     protected $table = 'doacoes';
+    protected $table = 'doacoes';
     
     protected $fillable = [
         'nome_doador',

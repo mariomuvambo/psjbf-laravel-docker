@@ -21,7 +21,7 @@ class OracaoController extends Controller
         return response()->json($oracoes);
     }
 
-    /**
+    /** 
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -118,6 +118,12 @@ class OracaoController extends Controller
         }
         $oracao->delete(); // ou $oracao->update(['lida' => true]);
         return response()->json(['mensagem' => 'Marcada como lida']);
+    }
+    
+    public function ultimasOracoes()
+    {
+        $oracoes = Oracoes::latest()->take(3)->get();
+        return response()->json($oracoes);
     }
 
 }

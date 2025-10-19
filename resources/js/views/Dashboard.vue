@@ -1,204 +1,5 @@
-<template>
-  <div>
-    <!-- Sidebar Acima (para mobile) -->
-    <div class="d-block d-lg-none">
-      <SidebarDashboard />
-    </div>
-
-    <!-- Layout Principal com Sidebar à esquerda (para telas grandes) -->
-    <div class="d-flex">
-      <!-- Sidebar lateral (somente telas grandes) -->
-      <div class="d-none d-lg-block">
-        <SidebarDashboard />
-      </div>
-
-      <!-- Conteúdo Principal -->
-      <main class="flex-grow-1 bg-light">
-        <!-- Navbar -->
-        <NavDashboard />
-
-        <!-- Carrossel -->
-        <div id="carousel" class="my-4 mx-3">
-          <carousel />
-        </div>
-
-        <!-- Estatísticas -->
-        <section class="container mb-4">
-          <div class="row g-3">
-            <div class="col-md-6 col-lg-3" v-for="stat in estatisticas" :key="stat.label">
-              <div class="card text-white h-100" :class="stat.color">
-                <div class="card-body text-center">
-                  <h5>{{ stat.label }}</h5>
-                  <p class="display-6 fw-bold">{{ stat.valor }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Leitura do dia -->
-        <section class="container mb-4">
-          <div class="card shadow-sm">
-            <div class="card-header bg-warning text-dark">
-              📖 Leitura do Dia - {{ evangelho.data }}
-            </div>
-            <div class="card-body">
-              <blockquote class="blockquote">
-                <p class="mb-0 fst-italic">"{{ evangelho.versiculo }}"</p>
-                <footer class="blockquote-footer">{{ evangelho.referencia }}</footer>
-              </blockquote>
-            </div>
-          </div>
-        </section>
-
-        <!-- Avisos e Aniversariantes -->
-        <section class="container mb-5">
-          <div class="row g-4">
-            <!-- Avisos -->
-            <div class="col-md-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                  <span>📢 Avisos Paroquiais</span>
-                  <router-link to="/avisos" class="btn btn-outline-light btn-sm">Ver todos</router-link>
-                </div>
-                <div class="card-body">
-                  <ul v-if="avisosNaoLidos.length" class="list-unstyled mb-0">
-                    <li
-                      v-for="aviso in avisosNaoLidos"
-                      :key="aviso.id"
-                      class="mb-3"
-                    >
-                      <router-link
-                        :to="`/avisos/${aviso.id}`"
-                        class="text-decoration-none d-flex justify-content-between align-items-center"
-                      >
-                        <span class="text-dark fw-semibold">{{ aviso.title }}</span>
-                        <small class="text-muted">
-                          <i class="bi bi-clock me-1"></i>{{ formatarHora(aviso.hora) }}
-                        </small>
-                      </router-link>
-                    </li>
-                  </ul>
-                  <p v-else class="text-muted">Nenhum aviso novo.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Aniversariantes -->
-            <div class="col-md-6">
-              <div class="card h-100 shadow-sm">
-                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                  <div>🎉 Aniversariantes do Mês</div>
-                  <router-link to="/aniversariantes" class="btn btn-outline-light btn-sm d-flex align-items-center">
-                    <i class="bi bi-people-fill me-1"></i> Ver todos
-                  </router-link>
-                </div>
-                <div class="card-body">
-                  <ul v-if="aniversariantes.length" class="list-unstyled mb-0">
-                    <li
-                      v-for="pessoa in aniversariantes"
-                      :key="pessoa.id"
-                      class="mb-2 d-flex align-items-center"
-                    >
-                      <i class="bi bi-person-circle text-success me-2 fs-5"></i>
-                      <span class="fw-semibold">{{ pessoa.nome }}</span>
-                      <span class="ms-auto text-muted small">{{ pessoa.data_nascimento }}</span>
-                    </li>
-                  </ul>
-                  <p v-else class="text-muted mb-0">Nenhum aniversariante neste mês.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Galeria de Fotos -->
-        <section class="container mb-5">
-          <div class="card shadow-sm">
-            <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-              <span>📸 Eventos Recentes</span>
-              <button @click="irParaPaginaEventos" class="btn btn-sm btn-outline-light">Ver Todos</button>
-            </div>
-            <div class="card-body">
-              <div class="row g-3">
-                <div v-for="evento in eventosRecentes" :key="evento.id" class="col-6 col-md-3">
-                  <img :src="getImageUrl(evento.image)" class="img-fluid rounded shadow-sm mb-2" :alt="evento.description" />
-                  <p class="mb-0 text-truncate" :title="evento.description">{{ evento.description }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
 
-        <!-- Doações -->
-      <section class="container mb-5">
-        <div class="card shadow-sm text-center p-4">
-          <h4 class="mb-3">💕 Apoie nossa Paróquia</h4>
-          <p>As doações mantêm nossas atividades e ajudam os mais necessitados.</p>
-          <button class="btn btn-danger" @click="irParaPaginaDoacoes">Fazer uma Doação</button>
-        </div>
-      </section>
-
-
-      <!-- Mensagem do Pároco -->
-      <section class="container mb-5">
-        <div class="card shadow-sm">
-          <div class="card-header bg-dark text-white">🕋️ Mensagem do Pároco</div>
-          <div class="card-body">
-            <p class="lead">{{ mensagemParoco }}</p>
-            <p class="text-muted">Pe. José Antônio - Pároco</p>
-
-            <!-- Pedido de Oração -->
-            <hr />
-            <h5 class="mt-4">🙏 Envie seu Pedido de Oração</h5>
-            <form @submit.prevent="enviarPedidoOracao">
-              <div class="mb-3">
-                <textarea
-                  v-model="novoPedido"
-                  class="form-control"
-                  placeholder="Digite seu pedido de oração aqui..."
-                  rows="4"
-                  required
-                ></textarea>
-              </div>
-              <button type="submit" class="btn btn-danger">Enviar Pedido</button>
-            </form>
-            <div v-if="respostaPedido" class="alert alert-success mt-3" role="alert">
-              {{ respostaPedido }}
-            </div>
-          </div>
-        </div>
-      </section>
-
-
-        
-        <!-- Rodapé -->
-        <footer class="footer mt-auto">
-          <div class="footer-container container">
-            <div class="footer-section">
-              <h3>Igreja São Francisco</h3>
-              <p>Paróquia dedicada à fé, caridade e comunidade.</p>
-            </div>
-            <div class="footer-section">
-              <h3>Contato</h3>
-              <p>Email: paroquia@igreja.org</p>
-              <p>Telefone: (21) 99999-9999</p>
-            </div>
-            <div class="footer-section">
-              <h3>Redes Sociais</h3>
-              <div class="social-links">
-                <i class="bi bi-facebook fs-4"></i>
-                <i class="bi bi-instagram fs-4"></i>
-                <i class="bi bi-whatsapp fs-4"></i>
-              </div>
-            </div>
-          </div>
-        </footer>
-      </main>
-    </div>
-  </div>
-</template>
 
 <script>
 import SidebarDashboard from '../components/SidebarDashboard.vue';
@@ -211,7 +12,7 @@ export default {
     SidebarDashboard,
     NavDashboard,
     carousel,
-  },
+  }, 
   data() {
     return {
       avisosNaoLidos: [],
@@ -219,7 +20,7 @@ export default {
       estatisticas: [
         { label: 'Total de Fiéis', valor: 150, color: 'bg-info' },
         { label: 'Missas Hoje', valor: 3, color: 'bg-success' },
-        { label: 'Doações (Julho)', valor: 'R$ 2.400', color: 'bg-warning' },
+        // { label: 'Doações (Julho)', valor: 'MT 2.400', color: 'bg-warning' },
         { label: 'Eventos Ativos', valor: 5, color: 'bg-danger' },
       ],
       evangelho: {
@@ -310,18 +111,323 @@ export default {
       }, 5000);
     }
   },
+
+  async buscarEstatisticasDoacoes() {
+  try {
+    const response = await axios.get('/doacoes-por-mes');
+    const data = response.data;
+
+    const estatisticasBase = [
+      { label: 'Total de Fiéis', valor: 150, color: 'bg-info' },
+      { label: 'Missas Hoje', valor: 3, color: 'bg-success' },
+      { label: 'Eventos Ativos', valor: 5, color: 'bg-danger' },
+    ];
+
+    // Pega o mês atual no formato 'MM/YYYY'
+    const dataAtual = new Date();
+    const mesAtual = ('0' + (dataAtual.getMonth() + 1)).slice(-2) + '/' + dataAtual.getFullYear();
+
+    // Procura o valor de doação do mês atual
+    const doacaoMes = data.find(d => d.mes === mesAtual);
+    const valorDoacao = doacaoMes ? parseFloat(doacaoMes.total) : 0;
+
+    // Adiciona a estatística de doação ao array
+    estatisticasBase.push({
+      label: `Doações (${this.getNomeMes(dataAtual.getMonth())})`,
+      valor: `${valorDoacao.toLocaleString('pt-MZ')} MT`,
+      color: 'bg-warning'
+    });
+
+    // Atualiza o array final
+    this.estatisticas = estatisticasBase;
+
+  } catch (error) {
+    console.error('Erro ao buscar doações:', error);
+  }
+},
+getNomeMes(mesIndex) {
+    const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    return meses[mesIndex];
+  }
+
   },
   mounted() {
     this.carregarAniversariantes();
     this.carregarAvisos();
     this.carregarEventos();
+    this.buscarEstatisticasDoacoes();
   }
 };
 </script>
 
+<template>
+  <div>
+    <!-- Layout Principal com Sidebar à esquerda (para telas grandes) -->
+    <div class="d-flex justify-content-start">
+
+      <!-- Sidebar lateral (somente telas grandes) -->
+      <div class="d-none d-lg-block">
+        <SidebarDashboard />
+      </div>
+
+      <!-- Conteúdo Principal -->
+      <main class="flex-grow-1">
+        <!-- Wrapper para alinhar tudo à esquerda -->
+        <div class="content-wrapper px-2 px-md-3">
+          <!-- Navbar -->
+          <NavDashboard />
+
+          <!-- Carrossel -->
+          <div id="carousel" class="my-4">
+            <carousel />
+          </div>
+
+          <!-- Estatísticas -->
+          <section class="mb-4">
+            <div class="row g-3">
+              <div
+                class="col-md-6 col-lg-3"
+                v-for="stat in estatisticas"
+                :key="stat.label"
+              >
+                <div class="card text-white h-90" :class="stat.color">
+                  <div class="card-body text-center">
+                    <h5>{{ stat.label }}</h5>
+                    <p class="display-6 fw-bold">{{ stat.valor }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Leitura do dia -->
+          <section class="mb-4">
+            <div class="card shadow-sm">
+              <div class="card-header bg-warning text-dark">
+                📖 Leitura do Dia - {{ evangelho.data }}
+              </div>
+              <div class="card-body">
+                <blockquote class="blockquote">
+                  <p class="mb-0 fst-italic">"{{ evangelho.versiculo }}"</p>
+                  <footer class="blockquote-footer">
+                    {{ evangelho.referencia }}
+                  </footer>
+                </blockquote>
+              </div>
+            </div>
+          </section>
+
+          <!-- Avisos e Aniversariantes -->
+          <section class="mb-5">
+            <div class="row g-4">
+              <!-- Avisos -->
+              <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                  <div
+                    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
+                  >
+                    <span>📢 Avisos Paroquiais</span>
+                    <router-link
+                      to="/avisos"
+                      class="btn btn-outline-light btn-sm"
+                    >
+                      Ver todos
+                    </router-link>
+                  </div>
+                  <div class="card-body">
+                    <ul v-if="avisosNaoLidos.length" class="list-unstyled mb-0">
+                      <li
+                        v-for="aviso in avisosNaoLidos"
+                        :key="aviso.id"
+                        class="mb-3"
+                      >
+                        <router-link
+                          :to="`/avisos/${aviso.id}`"
+                          class="text-decoration-none d-flex justify-content-between align-items-center"
+                        >
+                          <span class="text-dark fw-semibold">{{
+                            aviso.title
+                          }}</span>
+                          <small class="text-muted">
+                            <i class="bi bi-clock me-1"></i
+                            >{{ formatarHora(aviso.hora) }}
+                          </small>
+                        </router-link>
+                      </li>
+                    </ul>
+                    <p v-else class="text-muted">Nenhum aviso novo.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aniversariantes -->
+              <div class="col-md-6">
+                <div class="card h-100 shadow-sm">
+                  <div
+                    class="card-header bg-success text-white d-flex justify-content-between align-items-center"
+                  >
+                    <div>🎉 Aniversariantes do Mês</div>
+                    <router-link
+                      to="/aniversariantes"
+                      class="btn btn-outline-light btn-sm d-flex align-items-center"
+                    >
+                      <i class="bi bi-people-fill me-1"></i> Ver todos
+                    </router-link>
+                  </div>
+                  <div class="card-body">
+                    <ul v-if="aniversariantes.length" class="list-unstyled mb-0">
+                      <li
+                        v-for="pessoa in aniversariantes"
+                        :key="pessoa.id"
+                        class="mb-2 d-flex align-items-center"
+                      >
+                        <i
+                          class="bi bi-person-circle text-success me-2 fs-5"
+                        ></i>
+                        <span class="fw-semibold">{{ pessoa.nome }}</span>
+                        <span class="ms-auto text-muted small">{{
+                          pessoa.data_nascimento
+                        }}</span>
+                      </li>
+                    </ul>
+                    <p v-else class="text-muted mb-0">
+                      Nenhum aniversariante neste mês.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Galeria de Fotos -->
+          <section class="mb-5">
+            <div class="card shadow-sm">
+              <div
+                class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
+              >
+                <span>📸 Eventos Recentes</span>
+                <button
+                  @click="irParaPaginaEventos"
+                  class="btn btn-sm btn-outline-light"
+                >
+                  Ver Todos
+                </button>
+              </div>
+              <div class="card-body">
+                <div class="row g-3">
+                  <div
+                    v-for="evento in eventosRecentes"
+                    :key="evento.id"
+                    class="col-6 col-md-3"
+                  >
+                    <img
+                      :src="getImageUrl(evento.image)"
+                      class="img-fluid rounded shadow-sm mb-2"
+                      :alt="evento.description"
+                    />
+                    <p
+                      class="mb-0 text-truncate"
+                      :title="evento.description"
+                    >
+                      {{ evento.description }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Doações -->
+          <section class="mb-5">
+            <div class="card shadow-sm text-center p-4">
+              <h4 class="mb-3">💕 Apoie nossa Paróquia</h4>
+              <p>
+                As doações mantêm nossas atividades e ajudam os mais
+                necessitados.
+              </p>
+              <button class="btn btn-danger" @click="irParaPaginaDoacoes">
+                Fazer uma Doação
+              </button>
+            </div>
+          </section>
+
+          <!-- Mensagem do Pároco -->
+          <section class="mb-5">
+            <div class="card shadow-sm">
+              <div class="card-header bg-dark text-white">
+                🕋️ Mensagem do Pároco
+              </div>
+              <div class="card-body">
+                <p class="lead">{{ mensagemParoco }}</p>
+                <p class="text-muted">Pe. José Antônio - Pároco</p>
+
+                <!-- Pedido de Oração -->
+                <hr />
+                <h5 class="mt-4">🙏 Envie seu Pedido de Oração</h5>
+                <form @submit.prevent="enviarPedidoOracao">
+                  <div class="mb-3">
+                    <textarea
+                      v-model="novoPedido"
+                      class="form-control"
+                      placeholder="Digite seu pedido de oração aqui..."
+                      rows="4"
+                      required
+                    ></textarea>
+                  </div>
+                  <button type="submit" class="btn btn-danger">
+                    Enviar Pedido
+                  </button>
+                </form>
+                <div
+                  v-if="respostaPedido"
+                  class="alert alert-success mt-3"
+                  role="alert"
+                >
+                  {{ respostaPedido }}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Rodapé -->
+          <footer class="footer mt-auto">
+            <div class="footer-container container">
+              <div class="footer-section">
+                <h3>Igreja São Francisco</h3>
+                <p>Paróquia dedicada à fé, caridade e comunidade.</p>
+              </div>
+              <div class="footer-section">
+                <h3>Contato</h3>
+                <p>Email: paroquia@igreja.org</p>
+                <p>Telefone: (21) 99999-9999</p>
+              </div>
+              <div class="footer-section">
+                <h3>Redes Sociais</h3>
+                <div class="social-links">
+                  <i class="bi bi-facebook fs-4"></i>
+                  <i class="bi bi-instagram fs-4"></i>
+                  <i class="bi bi-whatsapp fs-4"></i>
+                </div>
+              </div>
+            </div>
+          </footer>
+        </div> <!-- Fim content-wrapper -->
+      </main>
+    </div>
+  </div>
+</template>
 
 <style scoped>
-/* Estatísticas com bordas suaves e ícones grandes */
+/* Wrapper para alinhar conteúdo à esquerda */
+.content-wrapper {
+  max-width: 1040px; /* ou qualquer valor menor que container padrão */
+  margin-left: 0; /* alinha à esquerda */
+  margin-right: auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Card padrão */
 .card {
   border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -351,9 +457,9 @@ export default {
 .footer-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: flex-start; /* alinhamento à esquerda */
   gap: 1.5rem;
-  text-align: center;
+  text-align: left;
 }
 .footer-section {
   flex: 1 1 250px;
@@ -364,7 +470,7 @@ export default {
 }
 .social-links {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 1rem;
 }
 
@@ -386,10 +492,11 @@ blockquote {
   padding-left: 1rem;
 }
 
-/* Responsividade extra */
+/* Responsividade */
 @media (max-width: 768px) {
   .footer-container {
     flex-direction: column;
+    text-align: center;
   }
 
   .img-fluid {
@@ -397,3 +504,5 @@ blockquote {
   }
 }
 </style>
+
+

@@ -24,6 +24,8 @@ import AdminUsuarios from '../views/Admin/AdminUsuarios.vue';
 import OracoesView from '../views/Oracao/OracoesView.vue';
 import AniversarianteList from '../views/Aniversariantes/AniversarianteList.vue';
 import AnaliseBatptismo from '../views/Sacerdote/AnaliseBatptismo.vue';
+import Missas from '../views/Missas/Missas.vue';
+import Leituras from '../views/Missas/Leituras.vue';
 
 
 const routes = [
@@ -66,6 +68,16 @@ const routes = [
         path: "/PerfilUser", // Nova rota para registro
         name: "PerfilUser",
         component: PerfilUser,
+    },
+     {
+        path: "/Missas", 
+        name: "Missas",
+        component: Missas,
+    },
+    {
+        path: "/Leituras", 
+        name: "Leituras",
+        component: Leituras,
     },
     {
         path: "/dashboard", // Nova rota para registro

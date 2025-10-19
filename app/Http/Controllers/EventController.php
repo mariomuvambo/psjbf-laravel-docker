@@ -36,8 +36,18 @@ class EventController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-   public function store(Request $request)
+ public function store(Request $request)
 {
+    // Verifica se já existe evento na mesma data
+    $existingEvent = Event::whereDate('date', $request->date)->count();
+    if ($existingEvent > 0) {
+        // Se já houver evento na mesma data, retorna mensagem de erro
+        return response()->json([
+            'message' => '❌ Já existe um evento nesta data. Por favor, escolha outra data.'
+        ], 400);  // Código HTTP 400 para erro de validação
+    }
+
+    // Validação dos dados de entrada
     $request->validate([
         'title' => 'required|string',
         'date' => 'required|date',
@@ -62,8 +72,9 @@ class EventController extends Controller
         'image' => $imageName, // apenas o nome
     ]);
 
-    return response()->json($event, 201);
+    return response()->json($event, 201);  // Retorna o evento criado com sucesso
 }
+
 
 
     /**
@@ -163,5 +174,54 @@ public function update(Request $request, $id)
         return response()->json(['message' => 'Evento deletado com sucesso']);
     }
 
+    public function eventsForDate(Request $request)
+{
+    // Valida se a data foi fornecida e se é uma data válida
+    $request->validate([
+        'date' => 'required|date',
+    ]);
+
+    // Obtém os eventos para a data fornecida
+    $date = $request->date;
     
+    // Consulta os eventos para a data específica
+    $events = Event::whereDate('date', $date)->get();
+
+    // Retorna os eventos encontrados como uma resposta JSON, formatando a data corretamente
+    return response()->json($events->map(function ($event) {
+        return [
+            'id' => $event->id,
+            'title' => $event->title,
+            'date' => $event->date, // Data sem hora
+            'time' => $event->time, // Hora
+            'location' => $event->location,
+            'description' => $event->description,
+            'image' => $event->image,
+            'created_at' => $event->created_at,
+            'updated_at' => $event->updated_at,
+        ];
+    }));
+}
+
+  public function getEventsOfCurrentMonth()
+    {
+        $currentMonth = now()->month;
+        $currentYear = now()->year;
+
+        // Contar eventos do mês atual
+        $eventosDoMes = Event::whereYear('date', $currentYear)
+                             ->whereMonth('date', $currentMonth)
+                             ->count();
+
+        // Retornar como resposta JSON
+        return response()->json([
+            'stats' => [
+                'label' => 'Eventos Ativos',
+                'valor' => $eventosDoMes,
+                'color' => 'bg-danger',  // Cor de fundo para o card
+            ]
+        ]);
+    }
+
+
 }

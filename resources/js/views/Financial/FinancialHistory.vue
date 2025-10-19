@@ -35,6 +35,17 @@
           </div>
         </div>
 
+        <!-- Cards de Métodos de Pagamento -->
+      <div class="row mb-5">
+        <div class="col-md-4 mb-3" v-for="(total, metodo) in totaisPorMetodo" :key="metodo">
+          <div class="card shadow rounded-4 p-3">
+            <h6 class="text-center">{{ metodo }}</h6>
+            <p class="text-center text-success">MZN {{ total.toFixed(2) }}</p>
+          </div>
+        </div>
+      </div>
+
+
         <!-- Histórico de Doações -->
         <div ref="historicoRef">
           <h5 class="text-center text-secondary mb-3">📌 Histórico de Doações</h5>
@@ -84,6 +95,7 @@ const doacoes = ref([]);
 const mensalChart = ref(null);
 const anualChart = ref(null);
 const historicoRef = ref(null);
+const totaisPorMetodo = ref({}); 
 
 function formatarData(dataISO) {
   const data = new Date(dataISO);
@@ -97,6 +109,7 @@ function gerarGraficos() {
   const anoAtual = new Date().getFullYear();
   const mensalData = new Array(12).fill(0);
   const anualData = {};
+   const metodoData = {}; 
 
   doacoes.value.forEach((d) => {
     const data = new Date(d.data_doacao);
@@ -106,6 +119,11 @@ function gerarGraficos() {
       }
       const ano = data.getFullYear();
       anualData[ano] = (anualData[ano] || 0) + d.valor;
+
+        // Soma o valor de cada método de pagamento
+      if (d.meio) {
+        metodoData[d.meio] = (metodoData[d.meio] || 0) + d.valor;
+      }
     }
   });
 
@@ -130,6 +148,9 @@ function gerarGraficos() {
       }
     ]
   };
+
+    // Atualiza os totais por método
+  totaisPorMetodo.value = metodoData;
 }
 
 async function carregar() {

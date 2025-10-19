@@ -19,6 +19,10 @@ use App\Http\Controllers\FinancialHistoryController;
 use App\Http\Controllers\CasamentoController;
 use App\Http\Controllers\BatismoController;
 use App\Http\Controllers\OracaoController;
+use App\Http\Controllers\CalendarioLiturgicoController;
+use App\Http\Controllers\MassController;
+
+
 
 
 
@@ -40,6 +44,11 @@ Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
+// oracoes 
+    Route::get('/oracoes/ultimas', [OracaoController::class, 'ultimasOracoes']);
+    Route::get('/missa/hoje', [MassController::class, 'todayReadings']);
+
+
 // Rotas protegidas
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -49,6 +58,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/usuarios/{id}', [AuthController::class, 'atualizarUsuario']);
     Route::delete('/usuarios/{id}', [AuthController::class, 'deletarUsuario']);
     Route::get('/user', fn(Request $request) => $request->user());
+
+    // calendario Liturgico
+    Route::get('/calendario-liturgico', [CalendarioLiturgicoController::class, 'getCalendario']);
+
+    // leituras
+
+
+    Route::get('/masses', [MassController::class, 'index']);
+    Route::post('/masses', [MassController::class, 'store']);
+    Route::get('/masses/date/{date}', [MassController::class, 'showByDate']);
+
+    
 
     // Perfil do usuário
     Route::apiResource('profilusers', ProfiluserController::class);
@@ -68,7 +89,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Eventos e Doações
     Route::apiResource('events', EventController::class);
+    Route::get('events-for-date', [EventController::class, 'eventsForDate']);
+    Route::get('/events/monthly-stats', [EventController::class, 'getEventsOfCurrentMonth']);
     Route::apiResource('doacoes', DoacaoController::class);
+    Route::get('/doacoes-por-mes', [DoacaoController::class, 'totalDoacoesPorMes']);
+
+
+
 
     // Administração de usuários
     Route::get('/admin/usuarios', [AuthController::class, 'listarUsuarios']);
@@ -106,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pedir-oracao', [OracaoController::class, 'index'])->name('oracao.index');
     Route::post('/pedir-oracao', [OracaoController::class, 'store'])->name('oracao.store');
     Route::post('/oracoes/{id}/marcar-lida', [OracaoController::class, 'marcarComoLida']);
+
 
 
 

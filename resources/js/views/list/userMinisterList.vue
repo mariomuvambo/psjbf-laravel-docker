@@ -12,11 +12,18 @@
       <div class="container py-4">
         <h2 class="text-primary mb-4 text-center">🙌 Ministérios da Paróquia</h2>
 
+        <!-- Mensagem de sucesso -->
         <div v-if="successMessage" class="alert alert-success text-center">
           {{ successMessage }}
         </div>
 
-        <div class="row g-4">
+        <!-- Mensagem caso não haja ministérios -->
+        <div v-if="ministers.length === 0" class="alert alert-info text-center">
+          Não há ministérios disponíveis no momento.
+        </div>
+
+        <!-- Lista de ministérios -->
+        <div class="row g-4" v-else>
           <div class="col-md-6" v-for="minister in ministers" :key="minister.id">
             <div class="card shadow h-100">
               <div class="card-body">
@@ -40,6 +47,7 @@
           </div>
         </div>
 
+        <!-- Meus ministérios -->
         <div v-if="userMinisters.length > 0" class="mt-5">
           <h4 class="text-center text-success mb-3">📋 Meus Ministérios</h4>
           <ul class="list-group">
