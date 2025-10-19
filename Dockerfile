@@ -1,16 +1,11 @@
 FROM node:18 AS build-frontend
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-
+COPY package*.json vite.config.js ./
 COPY resources ./resources
-COPY vite.config.js ./
-COPY artisan ./
-COPY composer.json composer.lock ./
-COPY routes ./routes
 COPY public ./public
 
+RUN npm install
 RUN npm run build
 
 
@@ -32,10 +27,7 @@ RUN composer install --no-dev --optimize-autoloader
 RUN php -r "if (!file_exists('.env')) copy('.env.example', '.env');"
 RUN php artisan key:generate || true
 RUN php artisan storage:link || true
-
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 8000
-
-
-CMD php artisan migrate --force || true && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8000
