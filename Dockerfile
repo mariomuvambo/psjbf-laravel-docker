@@ -12,9 +12,9 @@ WORKDIR /var/www/html
 
 RUN apk add --no-cache \
     zip unzip git curl libpng-dev libjpeg-turbo-dev libwebp-dev libxpm-dev \
-    oniguruma-dev icu-dev libzip-dev mysql-client bash
+    oniguruma-dev icu-dev libzip-dev mysql-client bash postgresql-dev
 
-RUN docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd zip intl
+RUN docker-php-ext-install pdo pdo_mysql pdo_pgsql mbstring exif pcntl bcmath gd zip intl
 
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
@@ -27,8 +27,9 @@ COPY --from=build-stage /app/public/build ./public/build
 
 
 RUN composer install --no-dev --optimize-autoloader
-RUN php artisan key:generate
-RUN php artisan storage:link
+
 
 EXPOSE 8000
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+
+
+CMD php artisan key:generate && php artisan storage:link && php artisan serve --host=0.0.0.0 --port=8000
