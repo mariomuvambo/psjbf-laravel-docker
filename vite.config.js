@@ -9,8 +9,9 @@ export default defineConfig({
             refresh: true,
         }),
         vue(),
-        
     ],
+    build: {
+        outDir: 'public/build',
+        emptyOutDir: true,
+    },
 });
-
-
