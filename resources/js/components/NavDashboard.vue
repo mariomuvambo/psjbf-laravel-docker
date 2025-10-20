@@ -17,15 +17,16 @@
 
       <div class="collapse navbar-collapse" id="navbarContent">
         <ul class="navbar-nav ms-auto align-items-center gap-3">
-          <!-- Ícone de Orações -->
-        <li v-if="user.role === 'sacerdote'" class="nav-item position-relative">
-          <RouterLink to="/sacerdote/oracoes" class="nav-link">
-            <i class="bi bi-journal-text fs-5"></i>
-            <span v-if="oracoesCount.value > 0" class="badge bg-warning position-absolute top-0 start-100 translate-middle">
-              {{ oracoesCount.value }}
-            </span>
-          </RouterLink>
-        </li>
+
+          <!-- Ícone de Orações (visível só para sacerdotes) -->
+          <li v-if="user.role === 'sacerdote'" class="nav-item position-relative">
+            <RouterLink to="/sacerdote/oracoes" class="nav-link">
+              <i class="bi bi-journal-text fs-5"></i>
+              <span v-if="oracoesCount.value > 0" class="badge bg-warning position-absolute top-0 start-100 translate-middle">
+                {{ oracoesCount.value }}
+              </span>
+            </RouterLink>
+          </li>
 
           <!-- Notificações -->
           <li class="nav-item position-relative">
@@ -46,7 +47,14 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              <img :src="user.photo" alt="avatar" class="rounded-circle me-2" width="32" height="32" />
+              <img
+                :src="photoUrl"
+                alt="avatar"
+                class="rounded-circle me-2 border border-light"
+                width="35"
+                height="35"
+                style="object-fit: cover;"
+              />
               {{ user.name }}
             </a>
             <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
@@ -66,64 +74,77 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
-import Dropdown from 'bootstrap/js/dist/dropdown' // Importa o JS do Bootstrap
+import Dropdown from 'bootstrap/js/dist/dropdown'
 
 const router = useRouter()
-
 const dropdownRef = ref(null)
 
+const API_BASE = import.meta.env.VITE_API_URL || 'https://psjbf.onrender.com/api'
 
-const oracoesCount = reactive({ value: 0 })
-
-const fetchOracoes = async () => {
-  try {
-    const response = await axios.get('/pedir-oracao')
-    oracoesCount.value = response.data.length || 0
-  } catch (error) {
-    console.warn('Erro ao buscar orações:', error)
-  }
-}
-
+// ==== USER DATA ====
 const userData = JSON.parse(localStorage.getItem('user')) || {}
+
 const user = reactive({
   name: userData?.nome || 'Usuário',
-  photo: userData?.foto_url || '/default-user.png',
   role: userData?.tipo_usuario || '',
+  photo: userData?.foto || null,
+  photo_url: userData?.foto_url || null,
 })
 
+// Computed para garantir URL completa
+const photoUrl = computed(() => {
+  if (user.photo_url && user.photo_url.startsWith('http')) {
+    return user.photo_url
+  } else if (user.photo) {
+    return `https://psjbf.onrender.com/storage/${user.photo}`
+  } else {
+    return '/default-user.png' // imagem padrão no /public
+  }
+})
 
+// ==== NOTIFICAÇÕES ====
 const avisosCount = reactive({ value: 0 })
-
 const fetchAvisos = async () => {
   try {
-    const response = await axios.get('/avisos')
+    const response = await axios.get(`${API_BASE}/avisos`)
     avisosCount.value = response.data.total_nao_lidos || 0
   } catch (error) {
     console.warn('Erro ao buscar avisos:', error)
   }
 }
 
+// ==== ORAÇÕES ====
+const oracoesCount = reactive({ value: 0 })
+const fetchOracoes = async () => {
+  try {
+    const response = await axios.get(`${API_BASE}/pedir-oracao`)
+    oracoesCount.value = response.data.length || 0
+  } catch (error) {
+    console.warn('Erro ao buscar orações:', error)
+  }
+}
 
+// ==== LOGOUT ====
 const logout = () => {
   localStorage.removeItem('auth_token')
   localStorage.removeItem('user')
   router.push({ name: 'Login' })
 }
 
-
+// ==== MOUNT ====
 onMounted(() => {
   fetchAvisos()
   fetchOracoes()
-  // Inicializa o dropdown manualmente
+
   if (dropdownRef.value) {
     new Dropdown(dropdownRef.value.querySelector('[data-bs-toggle="dropdown"]'))
   }
 })
-
 </script>
+
 
 <style scoped>
 .bg-maroon {
