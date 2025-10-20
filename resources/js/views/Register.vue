@@ -108,8 +108,7 @@ export default {
         }
 
         const response = await axios.post("/register", formData, {
-          ...this.form,
-          headers: {
+       headers: {
             "Content-Type": "multipart/form-data",
             Accept: "application/json",
           },
@@ -128,8 +127,6 @@ export default {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
         this.$router.push("/login");
-
-      
 
       } catch (error) {
         this.errorMessage =
