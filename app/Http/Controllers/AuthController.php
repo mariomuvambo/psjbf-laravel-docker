@@ -29,10 +29,11 @@ class AuthController extends Controller
 
         // Upload da foto (se enviada)
         $fotoPath = null;
-        if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto')) { 
             $fotoPath = $request->file('foto')->store('fotos', 'public');
+            
         }
-
+ 
         $user = User::create([
             'nome' => $validated['nome'],
             'apelido' => $validated['apelido'] ?? null,
@@ -48,21 +49,9 @@ class AuthController extends Controller
 
         // Enviar e-mail de boas-vindas
         // Mail::to($user->email)->queue(new WelcomeMail($user));
-        //  try {
-        //         Mail::to($user->email)->send(new WelcomeMail($user));
-        //     } catch (\Exception $e) {
-        //         \Log::error('Erro ao enviar email: ' . $e->getMessage());
-        //     }
 
-        // Adiciona URL pública da foto no retorno
-        $user->foto_url = $fotoPath ? asset('storage/' . $fotoPath) : null;
-
-        return response()->json([
-            'message' => 'Usuário registrado com sucesso',
-            'user' => $user
-        ], 201);
+        return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
     }
-
 
     public function login(Request $request)
     {
