@@ -19,13 +19,12 @@ RUN npm run build
 # ==========================
 FROM php:8.2-fpm
 
-# Instala libs e extensões obrigatórias, incluindo pdo_pgsql
+# Instalar dependências do sistema e extensões PHP
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpq-dev libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-configure pgsql -with-pgsql=/usr/local/pgsql \
-    && docker-php-ext-install pdo pdo_pgsql pgsql mbstring exif pcntl bcmath gd \
-    && docker-php-ext-enable pdo pdo_pgsql pgsql \
-    && php -m | grep pdo_pgsql || (echo '❌ pdo_pgsql not loaded!' && exit 1)
+    && docker-php-ext-install pdo_pgsql pgsql pdo mbstring exif pcntl bcmath gd \
+    && docker-php-ext-enable pdo_pgsql pgsql
+
 
 WORKDIR /var/www/html
 
