@@ -25,25 +25,30 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_pgsql pgsql pdo mbstring exif pcntl bcmath gd \
     && docker-php-ext-enable pdo_pgsql pgsql
 
+# Confirmar que as extensões foram realmente carregadas
+RUN php -m | grep -E "pdo|pgsql" || (echo "❌ ERRO: extensões PDO/pgsql não carregadas!" && exit 1)
 
 WORKDIR /var/www/html
 
+# Copiar código fonte
 COPY . .
 
-# Copia build do frontend
+# Copiar build do frontend
 COPY --from=build-frontend /app/public/build ./public/build
 
-# Instala Composer e dependências Laravel
+# Instalar Composer e dependências Laravel
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Prepara ambiente Laravel
+# Preparar ambiente Laravel
 RUN php -r "if (!file_exists('.env')) copy('.env.example', '.env');"
 RUN php artisan key:generate || true
 RUN php artisan storage:link || true
 
+# Corrigir permissões
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 8000
 
+# 🚀 Rodar migrações e iniciar o servidor Laravel
 CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
