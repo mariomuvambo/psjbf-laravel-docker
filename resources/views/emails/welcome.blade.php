@@ -59,9 +59,9 @@
     <div class="container">
         <div class="header">Bem-vindo à Igreja Católica</div>
         <div class="content">
-            <p>Olá, <strong>{{ $user->nome }}</strong>!</p>
+            <p>Olá, <strong>{{ $user->name }}</strong>!</p>
             <p>Estamos felizes por você ter se juntado à nossa comunidade. Que sua jornada espiritual seja cheia de paz e bênçãos.</p>
-            <a href="{{ url('https://psjbf.onrender.com') }}" class="button">Acessar a Igreja Online</a>
+            <a href="{{ url('/') }}" class="button">Acessar a Igreja Online</a>
         </div>
         <div class="footer">
             &copy; 2025 Igreja Católica. Todos os direitos reservados.
