@@ -57,6 +57,14 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
     }
 });
 
+Route::get('/check-pdo', function () {
+    return response()->json([
+        'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
+        'pdo_loaded' => extension_loaded('pdo'),
+        'drivers' => \PDO::getAvailableDrivers(),
+    ]);
+});
+
 // Rotas protegidas
 Route::middleware('auth:sanctum')->group(function () {
 
