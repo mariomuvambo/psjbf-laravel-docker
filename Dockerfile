@@ -17,8 +17,9 @@ FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpq-dev libpng-dev libonig-dev libxml2-dev \
-    && docker-php-ext-install pdo pdo_pgsql mbstring exif pcntl bcmath gd \
+    && docker-php-ext-install pdo_pgsql pdo mbstring exif pcntl bcmath gd \
     && docker-php-ext-enable pdo_pgsql
+
 
 WORKDIR /var/www/html
 
