@@ -90,9 +90,10 @@ const fetchOracoes = async () => {
 const userData = JSON.parse(localStorage.getItem('user')) || {}
 const user = reactive({
   name: userData?.nome || 'Usuário',
-  photo: userData?.foto || '/default-user.png',
-  role: userData?.role || '',
+  photo: userData?.foto_url || '/default-user.png',
+  role: userData?.tipo_usuario || '',
 })
+
 
 const avisosCount = reactive({ value: 0 })
 
