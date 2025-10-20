@@ -64,6 +64,67 @@ Route::get('/check-pdo', function () {
         'drivers' => \PDO::getAvailableDrivers(),
     ]);
 });
+Route::get('/check-db-config', function () {
+    return response()->json([
+        'DB_CONNECTION' => env('DB_CONNECTION'),
+        'DB_HOST' => env('DB_HOST'),
+        'DB_PORT' => env('DB_PORT'),
+        'DB_DATABASE' => env('DB_DATABASE'),
+        'DB_USERNAME' => env('DB_USERNAME'),
+        'DB_PASSWORD' => env('DB_PASSWORD') ? '********' : null,
+    ]);
+});
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Config;
+
+Route::get('/db-test', function () {
+    try {
+        // 1️⃣ Verifica se o .env foi carregado
+        $envInfo = [
+            'APP_ENV' => env('APP_ENV'),
+            'APP_DEBUG' => env('APP_DEBUG'),
+            'DB_CONNECTION' => env('DB_CONNECTION'),
+            'DB_HOST' => env('DB_HOST'),
+            'DB_PORT' => env('DB_PORT'),
+            'DB_DATABASE' => env('DB_DATABASE'),
+            'DB_USERNAME' => env('DB_USERNAME'),
+            'DB_PASSWORD_PRESENT' => env('DB_PASSWORD') ? true : false,
+        ];
+
+        // 2️⃣ Testa se PDO e drivers estão carregados
+        $pdoInfo = [
+            'pdo_loaded' => extension_loaded('pdo'),
+            'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),
+            'drivers' => \PDO::getAvailableDrivers(),
+        ];
+
+        // 3️⃣ Testa conexão com o banco
+        $dbConnection = DB::connection();
+        $dbConnection->getPdo();
+        $dbName = $dbConnection->getDatabaseName();
+        $dbTest = $dbConnection->select("SELECT NOW() as current_time");
+
+        return response()->json([
+            'status' => '✅ Database connected successfully!',
+            'env' => $envInfo,
+            'pdo' => $pdoInfo,
+            'database' => [
+                'name' => $dbName,
+                'current_time' => $dbTest[0]->current_time ?? null,
+            ],
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => '❌ Database connection failed!',
+            'error' => $e->getMessage(),
+            'env' => $envInfo ?? [],
+            'pdo' => $pdoInfo ?? [],
+        ], 500);
+    }
+});
+
+
 
 // Rotas protegidas
 Route::middleware('auth:sanctum')->group(function () {
