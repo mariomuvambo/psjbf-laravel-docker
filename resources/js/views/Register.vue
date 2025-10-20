@@ -106,14 +106,15 @@ export default {
             formData.append(key, this.form[key]);
           }
         }
-
         const response = await axios.post("/register", formData, {
-          ...this.form,
           headers: {
             "Content-Type": "multipart/form-data",
             Accept: "application/json",
           },
         });
+
+
+       
 
 
         if (response.data && response.data.token) {
