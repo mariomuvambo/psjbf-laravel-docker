@@ -134,6 +134,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pedir-oracao', [OracaoController::class, 'store'])->name('oracao.store');
     Route::post('/oracoes/{id}/marcar-lida', [OracaoController::class, 'marcarComoLida']);
 
+    
+    Route::get('/ping-db', function () {
+    try {
+        \DB::connection()->getPdo();
+        return response()->json(['status' => '✅ Database connected successfully']);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
+
 
 
 
