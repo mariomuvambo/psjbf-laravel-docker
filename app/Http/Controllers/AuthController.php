@@ -49,8 +49,7 @@ class AuthController extends Controller
 
         // Enviar e-mail de boas-vindas
         // Mail::to($user->email)->queue(new WelcomeMail($user));
-        // Mail::to($user->email)->send(new WelcomeMail($user));
-
+        Mail::to($user->email)->send(new WelcomeMail($user));
 
         return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
     }
