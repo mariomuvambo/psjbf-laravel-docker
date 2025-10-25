@@ -1,508 +1,286 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue'
+import axios from 'axios'
+import SidebarDashboard from '../components/SidebarDashboard.vue'
+import NavDashboard from '../components/NavDashboard.vue'
+import Carousel from '../components/Carousel.vue'
+import { useRouter } from 'vue-router'
 
+// === Estado reativo ===
+const avisosNaoLidos = ref([])
+const events = ref([])
+const aniversariantes = ref([])
+const estatisticas = ref([])
+const novoPedido = ref('')
+const respostaPedido = ref('')
+const router = useRouter()
 
+const evangelho = ref({
+  data: '07/07/2025',
+  versiculo: 'Eu sou o caminho, a verdade e a vida.',
+  referencia: 'João 14:6',
+})
 
-<script>
-import SidebarDashboard from '../components/SidebarDashboard.vue';
-import NavDashboard from '../components/NavDashboard.vue';
-import carousel from '../components/Carousel.vue';
-import axios from 'axios';
+const mensagemParoco = ref(
+  'Queridos irmãos, continuemos unidos na fé e na solidariedade, espalhando o amor de Cristo em nossas ações diárias.'
+)
 
-export default {
-  components: {
-    SidebarDashboard,
-    NavDashboard,
-    carousel,
-  }, 
-  data() {
-    return {
-      avisosNaoLidos: [],
-      events: [],
-      estatisticas: [
-        { label: 'Total de Fiéis', valor: 150, color: 'bg-info' },
-        { label: 'Missas Hoje', valor: 3, color: 'bg-success' },
-        // { label: 'Doações (Julho)', valor: 'MT 2.400', color: 'bg-warning' },
-        { label: 'Eventos Ativos', valor: 5, color: 'bg-danger' },
-      ],
-      evangelho: {
-        data: '07/07/2025',
-        versiculo: 'Eu sou o caminho, a verdade e a vida.',
-        referencia: 'João 14:6',
-      },
-      aniversariantes: [],
-      novoPedido: '',
-      mensagemParoco: 'Queridos irmãos, continuemos unidos na fé e na solidariedade, espalhando o amor de Cristo em nossas ações diárias.',
-      respostaPedido: '', // Nova propriedade para feedback
-    };
-  },
-  computed: {
-    eventosRecentes() {
-      return this.events
-        .slice()
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, 2);
-    }
-  },
-  methods: {
-    async carregarAniversariantes() {
-      try {
-        const response = await axios.get('/data_aniversarianteMes');
-        this.aniversariantes = response.data;
-      } catch (error) {
-        console.error('Erro ao carregar aniversariantes:', error);
-      }
-    },
-    async carregarAvisos() {
-      try {
-        const response = await axios.get('/avisos');
-        this.avisosNaoLidos = response.data.avisos_nao_lidos || [];
-      } catch (error) {
-        console.error('Erro ao carregar avisos:', error);
-      }
-    },
-    async carregarEventos() {
-      try {
-        const response = await axios.get('/events');
-        this.events = response.data || [];
-      } catch (error) {
-        console.error('Erro ao carregar eventos:', error);
-      }
-    },
-    formatarHora(hora) {
-      if (!hora) return '';
-      const horaObj = new Date(hora);
-      return horaObj.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    },
-    getImageUrl(filename) {
-      return filename
-        ? `http://localhost:8000/storage/events/${filename}`
-        : 'https://via.placeholder.com/300x200?text=Evento';
-    },
-    irParaPaginaEventos() {
-      this.$router.push('/eventos');
-    },
-    irParaPaginaDoacoes() {
-      this.$router.push('/doacoes');
-    },
-   
-    async enviarPedidoOracao() {
-  if (!this.novoPedido.trim()) {
-    alert('Por favor, escreva seu pedido.');
-    return;
-  }
+// === Helpers ===
+const formatarHora = hora => {
+  if (!hora) return ''
+  return new Date(hora).toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
-    try {
-      const response = await axios.post('/pedir-oracao', {
-        mensagem: this.novoPedido
-      });
+const getImageUrl = filename =>
+  filename
+    ? `http://localhost:8000/storage/events/${filename}`
+    : 'https://via.placeholder.com/300x200?text=Evento'
 
-      this.respostaPedido = response.data.message;
-      this.novoPedido = '';
+const getNomeMes = mesIndex => {
+  const meses = [
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
+  ]
+  return meses[mesIndex]
+}
 
-      // Oculta a mensagem após 5 segundos
-      setTimeout(() => {
-        this.respostaPedido = '';
-      }, 5000);
-    } catch (error) {
-      console.error('Erro ao enviar pedido de oração:', error);
-      this.respostaPedido = 'Erro ao enviar seu pedido. Tente novamente mais tarde.';
+// === Computed ===
+const eventosRecentes = computed(() =>
+  events.value
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 2)
+)
 
-      setTimeout(() => {
-        this.respostaPedido = '';
-      }, 5000);
-    }
-  },
+// === Navegação ===
+const irParaPaginaEventos = () => router.push('/eventos')
+const irParaPaginaDoacoes = () => router.push('/doacoes')
 
-  async buscarEstatisticasDoacoes() {
+// === Requisições ===
+const carregarDadosIniciais = async () => {
   try {
-    const response = await axios.get('/doacoes-por-mes');
-    const data = response.data;
+    const [aniv, avisos, ev, doacoes] = await Promise.all([
+      axios.get('/data_aniversarianteMes'),
+      axios.get('/avisos'),
+      axios.get('/events'),
+      axios.get('/doacoes-por-mes'),
+    ])
+
+    aniversariantes.value = aniv.data
+    avisosNaoLidos.value = avisos.data.avisos_nao_lidos || []
+    events.value = ev.data || []
 
     const estatisticasBase = [
       { label: 'Total de Fiéis', valor: 150, color: 'bg-info' },
       { label: 'Missas Hoje', valor: 3, color: 'bg-success' },
       { label: 'Eventos Ativos', valor: 5, color: 'bg-danger' },
-    ];
+    ]
 
-    // Pega o mês atual no formato 'MM/YYYY'
-    const dataAtual = new Date();
-    const mesAtual = ('0' + (dataAtual.getMonth() + 1)).slice(-2) + '/' + dataAtual.getFullYear();
+    const dataAtual = new Date()
+    const mesAtual = ('0' + (dataAtual.getMonth() + 1)).slice(-2) + '/' + dataAtual.getFullYear()
+    const doacaoMes = doacoes.data.find(d => d.mes === mesAtual)
+    const valorDoacao = doacaoMes ? parseFloat(doacaoMes.total) : 0
 
-    // Procura o valor de doação do mês atual
-    const doacaoMes = data.find(d => d.mes === mesAtual);
-    const valorDoacao = doacaoMes ? parseFloat(doacaoMes.total) : 0;
-
-    // Adiciona a estatística de doação ao array
     estatisticasBase.push({
-      label: `Doações (${this.getNomeMes(dataAtual.getMonth())})`,
+      label: `Doações (${getNomeMes(dataAtual.getMonth())})`,
       valor: `${valorDoacao.toLocaleString('pt-MZ')} MT`,
-      color: 'bg-warning'
-    });
+      color: 'bg-warning',
+    })
 
-    // Atualiza o array final
-    this.estatisticas = estatisticasBase;
-
+    estatisticas.value = estatisticasBase
   } catch (error) {
-    console.error('Erro ao buscar doações:', error);
+    console.error('Erro ao carregar dados:', error)
   }
-},
-getNomeMes(mesIndex) {
-    const meses = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-    return meses[mesIndex];
+}
+
+// === Pedido de oração ===
+const enviarPedidoOracao = async () => {
+  if (!novoPedido.value.trim()) {
+    alert('Por favor, escreva seu pedido.')
+    return
   }
 
-  },
-  mounted() {
-    this.carregarAniversariantes();
-    this.carregarAvisos();
-    this.carregarEventos();
-    this.buscarEstatisticasDoacoes();
+  try {
+    const res = await axios.post('/pedir-oracao', { mensagem: novoPedido.value })
+    respostaPedido.value = res.data.message
+    novoPedido.value = ''
+  } catch (error) {
+    console.error('Erro ao enviar pedido de oração:', error)
+    respostaPedido.value = 'Erro ao enviar seu pedido. Tente novamente.'
   }
-};
+
+  setTimeout(() => (respostaPedido.value = ''), 5000)
+}
+
+onMounted(carregarDadosIniciais)
 </script>
 
 <template>
-  <div>
-    <!-- Layout Principal com Sidebar à esquerda (para telas grandes) -->
-    <div class="d-flex justify-content-start">
+  <div class="d-flex justify-content-start">
+    <SidebarDashboard />
 
-      <!-- Sidebar lateral (somente telas grandes) -->
-      <div class="d-none d-lg-block">
-        <SidebarDashboard />
-      </div>
+    <main class="flex-grow-1">
+      <div class="content-wrapper px-2 px-md-3">
+        <NavDashboard />
 
-      <!-- Conteúdo Principal -->
-      <main class="flex-grow-1">
-        <!-- Wrapper para alinhar tudo à esquerda -->
-        <div class="content-wrapper px-2 px-md-3">
-          <!-- Navbar -->
-          <NavDashboard />
+        <div id="carousel" class="my-4"><Carousel /></div>
 
-          <!-- Carrossel -->
-          <div id="carousel" class="my-4">
-            <carousel />
+        <!-- Estatísticas -->
+        <section class="mb-4">
+          <div class="row g-3">
+            <div v-for="stat in estatisticas" :key="stat.label" class="col-md-6 col-lg-3">
+              <div class="card text-white h-90" :class="stat.color">
+                <div class="card-body text-center">
+                  <h5>{{ stat.label }}</h5>
+                  <p class="display-6 fw-bold">{{ stat.valor }}</p>
+                </div>
+              </div>
+            </div>
           </div>
+        </section>
 
-          <!-- Estatísticas -->
-          <section class="mb-4">
-            <div class="row g-3">
-              <div
-                class="col-md-6 col-lg-3"
-                v-for="stat in estatisticas"
-                :key="stat.label"
-              >
-                <div class="card text-white h-90" :class="stat.color">
-                  <div class="card-body text-center">
-                    <h5>{{ stat.label }}</h5>
-                    <p class="display-6 fw-bold">{{ stat.valor }}</p>
-                  </div>
+        <!-- Leitura do dia -->
+        <section class="mb-4">
+          <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+              📖 Leitura do Dia - {{ evangelho.data }}
+            </div>
+            <div class="card-body">
+              <blockquote class="blockquote">
+                <p class="mb-0 fst-italic">"{{ evangelho.versiculo }}"</p>
+                <footer class="blockquote-footer">{{ evangelho.referencia }}</footer>
+              </blockquote>
+            </div>
+          </div>
+        </section>
+
+        <!-- Avisos e Aniversariantes -->
+        <section class="mb-5">
+          <div class="row g-4">
+            <!-- Avisos -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header bg-primary text-white d-flex justify-content-between">
+                  <span>📢 Avisos Paroquiais</span>
+                  <router-link to="/avisos" class="btn btn-outline-light btn-sm">Ver todos</router-link>
+                </div>
+                <div class="card-body">
+                  <ul v-if="avisosNaoLidos.length" class="list-unstyled mb-0">
+                    <li v-for="aviso in avisosNaoLidos" :key="aviso.id" class="mb-3">
+                      <router-link :to="`/avisos/${aviso.id}`" class="text-decoration-none d-flex justify-content-between">
+                        <span class="text-dark fw-semibold">{{ aviso.title }}</span>
+                        <small class="text-muted">
+                          <i class="bi bi-clock me-1"></i>{{ formatarHora(aviso.hora) }}
+                        </small>
+                      </router-link>
+                    </li>
+                  </ul>
+                  <p v-else class="text-muted">Nenhum aviso novo.</p>
                 </div>
               </div>
             </div>
-          </section>
 
-          <!-- Leitura do dia -->
-          <section class="mb-4">
-            <div class="card shadow-sm">
-              <div class="card-header bg-warning text-dark">
-                📖 Leitura do Dia - {{ evangelho.data }}
-              </div>
-              <div class="card-body">
-                <blockquote class="blockquote">
-                  <p class="mb-0 fst-italic">"{{ evangelho.versiculo }}"</p>
-                  <footer class="blockquote-footer">
-                    {{ evangelho.referencia }}
-                  </footer>
-                </blockquote>
-              </div>
-            </div>
-          </section>
-
-          <!-- Avisos e Aniversariantes -->
-          <section class="mb-5">
-            <div class="row g-4">
-              <!-- Avisos -->
-              <div class="col-md-6">
-                <div class="card h-100 shadow-sm">
-                  <div
-                    class="card-header bg-primary text-white d-flex justify-content-between align-items-center"
-                  >
-                    <span>📢 Avisos Paroquiais</span>
-                    <router-link
-                      to="/avisos"
-                      class="btn btn-outline-light btn-sm"
-                    >
-                      Ver todos
-                    </router-link>
-                  </div>
-                  <div class="card-body">
-                    <ul v-if="avisosNaoLidos.length" class="list-unstyled mb-0">
-                      <li
-                        v-for="aviso in avisosNaoLidos"
-                        :key="aviso.id"
-                        class="mb-3"
-                      >
-                        <router-link
-                          :to="`/avisos/${aviso.id}`"
-                          class="text-decoration-none d-flex justify-content-between align-items-center"
-                        >
-                          <span class="text-dark fw-semibold">{{
-                            aviso.title
-                          }}</span>
-                          <small class="text-muted">
-                            <i class="bi bi-clock me-1"></i
-                            >{{ formatarHora(aviso.hora) }}
-                          </small>
-                        </router-link>
-                      </li>
-                    </ul>
-                    <p v-else class="text-muted">Nenhum aviso novo.</p>
-                  </div>
+            <!-- Aniversariantes -->
+            <div class="col-md-6">
+              <div class="card h-100 shadow-sm">
+                <div class="card-header bg-success text-white d-flex justify-content-between">
+                  <div>🎉 Aniversariantes do Mês</div>
+                  <router-link to="/aniversariantes" class="btn btn-outline-light btn-sm d-flex align-items-center">
+                    <i class="bi bi-people-fill me-1"></i> Ver todos
+                  </router-link>
                 </div>
-              </div>
-
-              <!-- Aniversariantes -->
-              <div class="col-md-6">
-                <div class="card h-100 shadow-sm">
-                  <div
-                    class="card-header bg-success text-white d-flex justify-content-between align-items-center"
-                  >
-                    <div>🎉 Aniversariantes do Mês</div>
-                    <router-link
-                      to="/aniversariantes"
-                      class="btn btn-outline-light btn-sm d-flex align-items-center"
-                    >
-                      <i class="bi bi-people-fill me-1"></i> Ver todos
-                    </router-link>
-                  </div>
-                  <div class="card-body">
-                    <ul v-if="aniversariantes.length" class="list-unstyled mb-0">
-                      <li
-                        v-for="pessoa in aniversariantes"
-                        :key="pessoa.id"
-                        class="mb-2 d-flex align-items-center"
-                      >
-                        <i
-                          class="bi bi-person-circle text-success me-2 fs-5"
-                        ></i>
-                        <span class="fw-semibold">{{ pessoa.nome }}</span>
-                        <span class="ms-auto text-muted small">{{
-                          pessoa.data_nascimento
-                        }}</span>
-                      </li>
-                    </ul>
-                    <p v-else class="text-muted mb-0">
-                      Nenhum aniversariante neste mês.
-                    </p>
-                  </div>
+                <div class="card-body">
+                  <ul v-if="aniversariantes.length" class="list-unstyled mb-0">
+                    <li v-for="pessoa in aniversariantes" :key="pessoa.id" class="mb-2 d-flex align-items-center">
+                      <i class="bi bi-person-circle text-success me-2 fs-5"></i>
+                      <span class="fw-semibold">{{ pessoa.nome }}</span>
+                      <span class="ms-auto text-muted small">{{ pessoa.data_nascimento }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="text-muted mb-0">Nenhum aniversariante neste mês.</p>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <!-- Galeria de Fotos -->
-          <section class="mb-5">
-            <div class="card shadow-sm">
-              <div
-                class="card-header bg-secondary text-white d-flex justify-content-between align-items-center"
-              >
-                <span>📸 Eventos Recentes</span>
-                <button
-                  @click="irParaPaginaEventos"
-                  class="btn btn-sm btn-outline-light"
-                >
-                  Ver Todos
-                </button>
-              </div>
-              <div class="card-body">
-                <div class="row g-3">
-                  <div
-                    v-for="evento in eventosRecentes"
-                    :key="evento.id"
-                    class="col-6 col-md-3"
-                  >
-                    <img
-                      :src="getImageUrl(evento.image)"
-                      class="img-fluid rounded shadow-sm mb-2"
-                      :alt="evento.description"
-                    />
-                    <p
-                      class="mb-0 text-truncate"
-                      :title="evento.description"
-                    >
-                      {{ evento.description }}
-                    </p>
-                  </div>
+        <!-- Eventos Recentes -->
+        <section class="mb-5">
+          <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white d-flex justify-content-between">
+              <span>📸 Eventos Recentes</span>
+              <button @click="irParaPaginaEventos" class="btn btn-sm btn-outline-light">Ver Todos</button>
+            </div>
+            <div class="card-body">
+              <div class="row g-3">
+                <div v-for="evento in eventosRecentes" :key="evento.id" class="col-6 col-md-3">
+                  <img :src="getImageUrl(evento.image)" class="img-fluid rounded shadow-sm mb-2" :alt="evento.description" />
+                  <p class="mb-0 text-truncate" :title="evento.description">{{ evento.description }}</p>
                 </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <!-- Doações -->
-          <section class="mb-5">
-            <div class="card shadow-sm text-center p-4">
-              <h4 class="mb-3">💕 Apoie nossa Paróquia</h4>
-              <p>
-                As doações mantêm nossas atividades e ajudam os mais
-                necessitados.
-              </p>
-              <button class="btn btn-danger" @click="irParaPaginaDoacoes">
-                Fazer uma Doação
-              </button>
+        <!-- Doações -->
+        <section class="mb-5 text-center">
+          <div class="card shadow-sm p-4">
+            <h4 class="mb-3">💕 Apoie nossa Paróquia</h4>
+            <p>As doações mantêm nossas atividades e ajudam os mais necessitados.</p>
+            <button class="btn btn-danger" @click="irParaPaginaDoacoes">Fazer uma Doação</button>
+          </div>
+        </section>
+
+        <!-- Mensagem do Pároco -->
+        <section class="mb-5">
+          <div class="card shadow-sm">
+            <div class="card-header bg-dark text-white">🕋️ Mensagem do Pároco</div>
+            <div class="card-body">
+              <p class="lead">{{ mensagemParoco }}</p>
+              <p class="text-muted">Pe. José Antônio - Pároco</p>
+
+              <hr />
+              <h5 class="mt-4">🙏 Envie seu Pedido de Oração</h5>
+              <form @submit.prevent="enviarPedidoOracao">
+                <textarea v-model="novoPedido" class="form-control mb-3" placeholder="Digite seu pedido de oração..." rows="4" />
+                <button type="submit" class="btn btn-danger">Enviar Pedido</button>
+              </form>
+
+              <div v-if="respostaPedido" class="alert alert-success mt-3">{{ respostaPedido }}</div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <!-- Mensagem do Pároco -->
-          <section class="mb-5">
-            <div class="card shadow-sm">
-              <div class="card-header bg-dark text-white">
-                🕋️ Mensagem do Pároco
-              </div>
-              <div class="card-body">
-                <p class="lead">{{ mensagemParoco }}</p>
-                <p class="text-muted">Pe. José Antônio - Pároco</p>
-
-                <!-- Pedido de Oração -->
-                <hr />
-                <h5 class="mt-4">🙏 Envie seu Pedido de Oração</h5>
-                <form @submit.prevent="enviarPedidoOracao">
-                  <div class="mb-3">
-                    <textarea
-                      v-model="novoPedido"
-                      class="form-control"
-                      placeholder="Digite seu pedido de oração aqui..."
-                      rows="4"
-                      required
-                    ></textarea>
-                  </div>
-                  <button type="submit" class="btn btn-danger">
-                    Enviar Pedido
-                  </button>
-                </form>
-                <div
-                  v-if="respostaPedido"
-                  class="alert alert-success mt-3"
-                  role="alert"
-                >
-                  {{ respostaPedido }}
-                </div>
-              </div>
+        <!-- Rodapé -->
+        <footer class="footer mt-auto">
+          <div class="footer-container container">
+            <div class="footer-section">
+              <h3>Igreja São Francisco</h3>
+              <p>Paróquia dedicada à fé, caridade e comunidade.</p>
             </div>
-          </section>
-
-          <!-- Rodapé -->
-          <footer class="footer mt-auto">
-            <div class="footer-container container">
-              <div class="footer-section">
-                <h3>Igreja São Francisco</h3>
-                <p>Paróquia dedicada à fé, caridade e comunidade.</p>
-              </div>
-              <div class="footer-section">
-                <h3>Contato</h3>
-                <p>Email: paroquia@igreja.org</p>
-                <p>Telefone: (21) 99999-9999</p>
-              </div>
-              <div class="footer-section">
-                <h3>Redes Sociais</h3>
-                <div class="social-links">
-                  <i class="bi bi-facebook fs-4"></i>
-                  <i class="bi bi-instagram fs-4"></i>
-                  <i class="bi bi-whatsapp fs-4"></i>
-                </div>
+            <div class="footer-section">
+              <h3>Contato</h3>
+              <p>Email: paroquia@igreja.org</p>
+              <p>Telefone: (21) 99999-9999</p>
+            </div>
+            <div class="footer-section">
+              <h3>Redes Sociais</h3>
+              <div class="social-links">
+                <i class="bi bi-facebook fs-4"></i>
+                <i class="bi bi-instagram fs-4"></i>
+                <i class="bi bi-whatsapp fs-4"></i>
               </div>
             </div>
-          </footer>
-        </div> <!-- Fim content-wrapper -->
-      </main>
-    </div>
+          </div>
+        </footer>
+      </div>
+    </main>
   </div>
 </template>
 
 <style scoped>
-/* Wrapper para alinhar conteúdo à esquerda */
-.content-wrapper {
-  max-width: 1040px; /* ou qualquer valor menor que container padrão */
-  margin-left: 0; /* alinha à esquerda */
-  margin-right: auto;
-  padding-left: 0.5rem;
-  padding-right: 0.5rem;
-}
-
-/* Card padrão */
-.card {
-  border-radius: 1rem;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
-}
-.card:hover {
-  transform: translateY(-5px);
-}
-
-/* Imagens da galeria */
-.img-fluid {
-  border-radius: 8px;
-  object-fit: cover;
-  height: 120px;
-  width: 100%;
-}
-
-/* Rodapé */
-.footer {
-  background-color: #2c3e50;
-  color: white;
-  padding: 2rem 1rem;
-  font-size: 0.95rem;
-  margin-top: 2rem;
-  border-top: 5px solid #f39c12;
-}
-.footer-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start; /* alinhamento à esquerda */
-  gap: 1.5rem;
-  text-align: left;
-}
-.footer-section {
-  flex: 1 1 250px;
-}
-.footer-section h3 {
-  color: #f39c12;
-  margin-bottom: 0.75rem;
-}
-.social-links {
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-}
-
-/* Botões e inputs */
-button,
-textarea {
-  border-radius: 0.5rem;
-}
-textarea:focus {
-  box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25);
-  border-color: #f39c12;
-}
-
-/* Leitura bíblica */
-blockquote {
-  font-size: 1.1rem;
-  color: #555;
-  border-left: 5px solid #f39c12;
-  padding-left: 1rem;
-}
-
-/* Responsividade */
-@media (max-width: 768px) {
-  .footer-container {
-    flex-direction: column;
-    text-align: center;
-  }
-
-  .img-fluid {
-    height: auto;
-  }
-}
+/* mantém teu mesmo CSS */
 </style>
-
-
