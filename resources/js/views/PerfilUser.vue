@@ -20,7 +20,7 @@
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
-            />           
+            />
 
             <div class="text-center text-md-start">
               <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
