@@ -162,7 +162,7 @@ onMounted(async () => {
     const resDoacoes = await axios.get('/doacoes')
     doacoes.value = resDoacoes.data
 
-    const resMinisterios = await axios.get('/user_ministers')
+    const resMinisterios = await axios.get('/user_ministers') 
     ministerios.value = resMinisterios.data
 
     const resProcesso = await axios.get('/user/processo') 
