@@ -16,7 +16,7 @@
         <div class="card mb-5 shadow-sm border-0" id="bloco-perfil">
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <img
-              :src="user.foto_url || 'https://via.placeholder.com/150'"
+              :src="user.foto ? `/storage/${user.foto}` : 'https://via.placeholder.com/150'"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"

@@ -52,7 +52,6 @@ class User extends Authenticatable
         'data_crisma' => 'date',
         'data_ordem' => 'date',
     ];
-    protected $appends = ['foto_url'];
 
 
     // Relacionamento Many-to-Many com Aviso
@@ -92,17 +91,6 @@ class User extends Authenticatable
     {
         return $this->hasMany(Batismo::class); // ou Processo::class se o nome do modelo for diferente
     }
-
-    public function getFotoUrlAttribute()
-    {
-        if (!$this->foto) {
-            return null;
-        }
-
-        // Usa o helper asset() que respeita APP_URL
-        return asset('storage/' . $this->foto);
-    }
-
 
 
 }
