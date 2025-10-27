@@ -56,8 +56,8 @@ const eventosRecentes = computed(() =>
 )
 
 // === Navegação ===
-const irParaPaginaEventos = () => router.push('/eventos')
-const irParaPaginaDoacoes = () => router.push('/doacoes')
+const irParaPaginaEventos = () => router.push('/dashboard/eventos')
+const irParaPaginaDoacoes = () => router.push('/dashboard/doacoes')
 
 // === Requisições ===
 const carregarDadosIniciais = async () => {
@@ -165,12 +165,12 @@ onMounted(carregarDadosIniciais)
               <div class="card h-100 shadow-sm">
                 <div class="card-header bg-primary text-white d-flex justify-content-between">
                   <span>📢 Avisos Paroquiais</span>
-                  <router-link to="/avisos" class="btn btn-outline-light btn-sm">Ver todos</router-link>
+                  <router-link to="/dashboard/avisos" class="btn btn-outline-light btn-sm">Ver todos</router-link>
                 </div>
                 <div class="card-body">
                   <ul v-if="avisosNaoLidos.length" class="list-unstyled mb-0">
                     <li v-for="aviso in avisosNaoLidos" :key="aviso.id" class="mb-3">
-                      <router-link :to="`/avisos/${aviso.id}`" class="text-decoration-none d-flex justify-content-between">
+                      <router-link :to="`/dashboard/avisos/${aviso.id}`" class="text-decoration-none d-flex justify-content-between">
                         <span class="text-dark fw-semibold">{{ aviso.title }}</span>
                         <small class="text-muted">
                           <i class="bi bi-clock me-1"></i>{{ formatarHora(aviso.hora) }}
@@ -188,7 +188,7 @@ onMounted(carregarDadosIniciais)
               <div class="card h-100 shadow-sm">
                 <div class="card-header bg-success text-white d-flex justify-content-between">
                   <div>🎉 Aniversariantes do Mês</div>
-                  <router-link to="/aniversariantes" class="btn btn-outline-light btn-sm d-flex align-items-center">
+                  <router-link to="/dashboard/aniversariantes" class="btn btn-outline-light btn-sm d-flex align-items-center">
                     <i class="bi bi-people-fill me-1"></i> Ver todos
                   </router-link>
                 </div>
@@ -282,5 +282,89 @@ onMounted(carregarDadosIniciais)
 </template>
 
 <style scoped>
-/* mantém teu mesmo CSS */
+/* Wrapper para alinhar conteúdo à esquerda */
+.content-wrapper {
+  max-width: 1040px; /* ou qualquer valor menor que container padrão */
+  margin-left: 0; /* alinha à esquerda */
+  margin-right: auto;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+/* Card padrão */
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+
+/* Imagens da galeria */
+.img-fluid {
+  border-radius: 8px;
+  object-fit: cover;
+  height: 120px;
+  width: 100%;
+}
+
+/* Rodapé */
+.footer {
+  background-color: #2c3e50;
+  color: white;
+  padding: 2rem 1rem;
+  font-size: 0.95rem;
+  margin-top: 2rem;
+  border-top: 5px solid #f39c12;
+}
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start; /* alinhamento à esquerda */
+  gap: 1.5rem;
+  text-align: left;
+}
+.footer-section {
+  flex: 1 1 250px;
+}
+.footer-section h3 {
+  color: #f39c12;
+  margin-bottom: 0.75rem;
+}
+.social-links {
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+}
+
+/* Botões e inputs */
+button,
+textarea {
+  border-radius: 0.5rem;
+}
+textarea:focus {
+  box-shadow: 0 0 0 0.2rem rgba(243, 156, 18, 0.25);
+  border-color: #f39c12;
+}
+
+/* Leitura bíblica */
+blockquote {
+  font-size: 1.1rem;
+  color: #555;
+  border-left: 5px solid #f39c12;
+  padding-left: 1rem;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+  .footer-container {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .img-fluid {
+    height: auto;
+  }
+}
 </style>
