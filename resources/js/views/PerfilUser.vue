@@ -16,11 +16,11 @@
         <div class="card mb-5 shadow-sm border-0" id="bloco-perfil">
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <img
-              :src="user.foto ? `/storage/${user.foto}` : 'https://via.placeholder.com/150'"
+              :src="user.foto_url || 'https://via.placeholder.com/150'"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
-            />
+            />           
 
             <div class="text-center text-md-start">
               <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
@@ -159,10 +159,10 @@ onMounted(async () => {
     const resUser = await axios.get('/user')
     user.value = resUser.data
 
-    const resDoacoes = await axios.get('/doacoes')
+    const resDoacoes = await axios.get('/dashboard/doacoes')
     doacoes.value = resDoacoes.data
 
-    const resMinisterios = await axios.get('/user_ministers') 
+    const resMinisterios = await axios.get('/dashboard/user_ministers') 
     ministerios.value = resMinisterios.data
 
     const resProcesso = await axios.get('/user/processo') 
