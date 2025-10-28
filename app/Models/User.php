@@ -57,16 +57,13 @@ class User extends Authenticatable
     protected $appends = ['foto_url'];
 
     public function getFotoUrlAttribute()
-    {
-        // Se estiver usando disk 'public' (local) o Storage::url() normalmente resolve para /storage/...
-        if ($this->foto) {
-            // Use Storage para ser compatível com s3 também
-            return Storage::disk(config('filesystems.default'))->url($this->foto);
-        }
-
-        // fallback
-        return 'https://via.placeholder.com/150';
+{
+    if ($this->foto) {
+        return url('storage/' . $this->foto);
     }
+    return url('images/default-user.png');
+}
+
 
 
     // Relacionamento Many-to-Many com Aviso
