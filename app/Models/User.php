@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
+
 
 class User extends Authenticatable
 {
@@ -52,6 +54,19 @@ class User extends Authenticatable
         'data_crisma' => 'date',
         'data_ordem' => 'date',
     ];
+    protected $appends = ['foto_url'];
+
+    public function getFotoUrlAttribute()
+    {
+        // Se estiver usando disk 'public' (local) o Storage::url() normalmente resolve para /storage/...
+        if ($this->foto) {
+            // Use Storage para ser compatível com s3 também
+            return Storage::disk(config('filesystems.default'))->url($this->foto);
+        }
+
+        // fallback
+        return 'https://via.placeholder.com/150';
+    }
 
 
     // Relacionamento Many-to-Many com Aviso
@@ -92,5 +107,5 @@ class User extends Authenticatable
         return $this->hasMany(Batismo::class); // ou Processo::class se o nome do modelo for diferente
     }
 
-
+ 
 }
