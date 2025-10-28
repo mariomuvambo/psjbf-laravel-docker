@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class AniversarianteController extends Controller
 {
-    //
+    // Lista aniversariantes do mês (datas formatadas)
     public function data_aniversarianteMes()
     {
         $mesAtual = Carbon::now()->month;
@@ -30,7 +30,7 @@ class AniversarianteController extends Controller
         return response()->json($aniversariantes);
     }
 
-       // Lista os aniversariantes do mês com curtidas e comentários
+    // Lista os aniversariantes do mês com curtidas e comentários
     public function aniversariantesDoMes()
     {
         $mesAtual = Carbon::now()->month;
@@ -42,15 +42,18 @@ class AniversarianteController extends Controller
                 'comentariosRecebidos as total_comentariosRecebidos',
                 'curtidasRecebidas as total_curtidaRecebidas'
             ])
-            ->with([
-                'comentarios.user:id,nome'
-            ])
-            ->get();
+            ->with(['comentarios.user:id,nome'])
+            ->get()
+            ->map(function ($user) {
+                // Gera URL completa (HTTPS) da foto
+                $user->foto_url = $user->foto_url; // usa o accessor do modelo
+                return $user;
+            });
 
         return response()->json($aniversariantes);
     }
 
-     // Curtir um aniversariante (apenas uma vez por usuário)
+    // Curtir um aniversariante (apenas uma vez por usuário)
     public function curtir($id)
     {
         $userId = auth()->id();
@@ -70,7 +73,6 @@ class AniversarianteController extends Controller
 
         return response()->json(['message' => 'Curtida registrada com sucesso.']);
     }
-
 
     // Adicionar comentário
     public function comentar(Request $request, $id)
@@ -115,5 +117,4 @@ class AniversarianteController extends Controller
 
         return response()->json(['message' => 'Comentário removido com sucesso.']);
     }
-    
 }
