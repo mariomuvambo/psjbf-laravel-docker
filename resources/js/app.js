@@ -14,7 +14,6 @@ console.log('API URL carregada:', import.meta.env.VITE_API_URL);
 // 🧠 Define a baseURL dinamicamente
 axios.defaults.baseURL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api';
 axios.defaults.headers.common['Accept'] = 'application/json';
-axios.defaults.withCredentials = false;
 
 // 🔒 Intercepta requests para adicionar token JWT, se existir
 axios.interceptors.request.use((config) => {
