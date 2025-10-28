@@ -49,7 +49,7 @@ class ProfiluserController extends Controller
         
 
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('profilusers', 'public');
+            $imagePath = $request->file('image')->store('profilusers', 'public'); 
 
         }
        

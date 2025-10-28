@@ -4,7 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\API\UserController;
+
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
@@ -21,6 +21,7 @@ use App\Http\Controllers\BatismoController;
 use App\Http\Controllers\OracaoController;
 use App\Http\Controllers\CalendarioLiturgicoController;
 use App\Http\Controllers\MassController;
+use App\Http\Controllers\UserController;
 
 
 
@@ -134,7 +135,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/usuarios', [AuthController::class, 'listarUsuarios']);
     Route::post('/usuarios/{id}', [AuthController::class, 'atualizarUsuario']);
     Route::delete('/usuarios/{id}', [AuthController::class, 'deletarUsuario']);
-    Route::get('/user', fn(Request $request) => $request->user());
+    Route::get('/user', [UserController::class, 'userData']);
+
 
     // calendario Liturgico
     Route::get('/calendario-liturgico', [CalendarioLiturgicoController::class, 'getCalendario']);

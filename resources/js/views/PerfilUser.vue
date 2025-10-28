@@ -157,22 +157,18 @@ const formatDate = (dateStr) => {
 
 onMounted(async () => {
   try {
-    const resUser = await axios.get('/user')
-    user.value = resUser.data
+    const res = await axios.get('/user')
 
-    const resDoacoes = await axios.get('/doacoes')
-    doacoes.value = resDoacoes.data
-
-    const resMinisterios = await axios.get('/user_ministers')
-    ministerios.value = resMinisterios.data
-
-    const resProcesso = await axios.get('/user/processo') 
-    processo.value = resProcesso.data
+    user.value = res.data.user
+    doacoes.value = res.data.doacoes
+    ministerios.value = res.data.ministerios
+    processo.value = res.data.processo
 
   } catch (error) {
     console.error('Erro ao carregar dados:', error)
   }
 })
+
 </script>
 
 <style scoped>

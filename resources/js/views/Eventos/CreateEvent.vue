@@ -206,7 +206,7 @@ export default {
           });
           this.message = '✅ Evento atualizado com sucesso!';
         } else {
-          await axios.post('/events', formData, {
+          await axios.post('/events', formData, { 
             headers: { 'Content-Type': 'multipart/form-data' },
           });
           this.message = '✅ Evento cadastrado com sucesso!';
