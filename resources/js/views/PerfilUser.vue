@@ -12,63 +12,80 @@
 
       <!-- Conteúdo -->
       <div class="container py-5 mt-4">
+
         <!-- BLOCO: Perfil do Usuário -->
-        <div class="card mb-5 shadow-sm border-0" id="bloco-perfil">
+        <div class="card mb-5 shadow-sm border-0" id="bloco-perfil" v-if="user">
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <img
-              :src="user.foto ? `/storage/${user.foto}` : 'https://via.placeholder.com/150'"
+              :src="user.foto_url || 'https://via.placeholder.com/150'"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
             />
             <div class="text-center text-md-start">
-              <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
-              <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
-              <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ user.telefone }}</p>
-              <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ user.endereco }}</p>
-              <p class="mb-1"><i class="fas fa-venus-mars me-2"></i>{{ user.genero }}</p>
-              <p class="mb-3"><i class="fas fa-birthday-cake me-2"></i>{{ formatDate(user.data_nascimento) }}</p>
+              <h3 class="fw-bold mb-2" style="color: #8b0000;">
+                {{ user.nome }} {{ user.apelido }}
+              </h3>
+              <p class="text-muted mb-1">
+                <i class="fas fa-envelope me-2"></i>{{ user.email }}
+              </p>
+              <p class="mb-1">
+                <i class="fas fa-phone me-2"></i>{{ user.telefone || '-' }}
+              </p>
+              <p class="mb-1">
+                <i class="fas fa-map-marker-alt me-2"></i>{{ user.endereco || '-' }}
+              </p>
+              <p class="mb-1">
+                <i class="fas fa-venus-mars me-2"></i>{{ user.genero || '-' }}
+              </p>
+              <p class="mb-3">
+                <i class="fas fa-birthday-cake me-2"></i>{{ formatDate(user.data_nascimento) }}
+              </p>
               <span class="badge bg-primary text-uppercase px-3 py-2">{{ user.tipo_usuario }}</span>
             </div>
           </div>
         </div>
 
         <!-- BLOCO: Estado do Processo -->
-<div class="card shadow-sm border-0 mb-4" id="bloco-processo" v-if="processo">
-  <div
-    class="card-header d-flex align-items-center"
-    :class="{
-      'bg-warning text-dark': processo.estado === 'pendente',
-      'bg-info text-white': processo.estado === 'em_analise',
-      'bg-success text-white': processo.estado === 'aprovado',
-      'bg-danger text-white': processo.estado === 'rejeitado'
-    }"
-  >
-    <i
-      class="fas me-2"
-      :class="{
-        'fa-hourglass-half': processo.estado === 'pendente',
-        'fa-search': processo.estado === 'em_analise',
-        'fa-check-circle': processo.estado === 'aprovado',
-        'fa-times-circle': processo.estado === 'rejeitado'
-      }"
-    ></i>
-    <strong>Status do Processo de Batismo / Casamento</strong>
-  </div>
-  <div class="card-body">
-    <p class="mb-2">
-      <strong>Estado Atual:</strong>
-      <span class="text-capitalize">{{ processo.estado.replace('_', ' ') }}</span>
-    </p>
-    <p v-if="processo.data_cerimonia">
-      <strong>Data da Cerimônia:</strong>
-      {{ formatDate(processo.data_cerimonia) }}
-    </p>
-    <p class="text-muted small mb-0">Você será notificado sempre que o status for atualizado.</p>
-  </div>
-</div>
-
-
+        <div
+          class="card shadow-sm border-0 mb-4"
+          id="bloco-processo"
+          v-if="processo"
+        >
+          <div
+            class="card-header d-flex align-items-center"
+            :class="{
+              'bg-warning text-dark': processo.estado === 'pendente',
+              'bg-info text-white': processo.estado === 'em_analise',
+              'bg-success text-white': processo.estado === 'aprovado',
+              'bg-danger text-white': processo.estado === 'rejeitado'
+            }"
+          >
+            <i
+              class="fas me-2"
+              :class="{
+                'fa-hourglass-half': processo.estado === 'pendente',
+                'fa-search': processo.estado === 'em_analise',
+                'fa-check-circle': processo.estado === 'aprovado',
+                'fa-times-circle': processo.estado === 'rejeitado'
+              }"
+            ></i>
+            <strong>Status do Processo de Batismo / Casamento</strong>
+          </div>
+          <div class="card-body">
+            <p class="mb-2">
+              <strong>Estado Atual:</strong>
+              <span class="text-capitalize">{{ processo.estado.replace('_', ' ') }}</span>
+            </p>
+            <p v-if="processo.data_cerimonia">
+              <strong>Data da Cerimônia:</strong>
+              {{ formatDate(processo.data_cerimonia) }}
+            </p>
+            <p class="text-muted small mb-0">
+              Você será notificado sempre que o status for atualizado.
+            </p>
+          </div>
+        </div>
 
         <!-- BLOCO: Histórico de Doações -->
         <div class="card shadow-sm border-0" id="bloco-doacoes">
@@ -143,30 +160,35 @@ import axios from 'axios'
 import NavDashboard from '../components/NavDashboard.vue'
 import SidebarDashboard from '../components/SidebarDashboard.vue'
 
-const user = ref({})
+const user = ref(null)
 const doacoes = ref([])
 const ministerios = ref([])
 const processo = ref(null)
 
 const formatDate = (dateStr) => {
+  if (!dateStr) return '-'
   const options = { year: 'numeric', month: 'short', day: 'numeric' }
   return new Date(dateStr).toLocaleDateString('pt-PT', options)
 }
 
 onMounted(async () => {
+  const token = localStorage.getItem('auth_token')
+  if (!token) {
+    window.location.href = '/login'
+    return
+  }
+
   try {
     const res = await axios.get('/user')
-
+    // Backend já retorna: { user, doacoes, ministerios, processo }
     user.value = res.data.user
-    doacoes.value = res.data.doacoes
-    ministerios.value = res.data.ministerios
-    processo.value = res.data.processo
-
+    doacoes.value = res.data.doacoes || []
+    ministerios.value = res.data.ministerios || []
+    processo.value = res.data.processo || null
   } catch (error) {
     console.error('Erro ao carregar dados:', error)
   }
 })
-
 </script>
 
 <style scoped>
@@ -196,5 +218,4 @@ h2 {
   padding: 1.5rem;
   font-size: 1rem;
 }
-
 </style>

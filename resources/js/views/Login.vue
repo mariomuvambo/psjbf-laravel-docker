@@ -68,7 +68,7 @@ export default {
         });
 
         const { token, user } = response.data;
-        localStorage.setItem("token", token);
+        localStorage.setItem("auth_token", token);
         localStorage.setItem("user", JSON.stringify(user));
         this.$router.push("/dashboard");
       } catch (error) {
