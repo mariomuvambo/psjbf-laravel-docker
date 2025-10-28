@@ -57,13 +57,13 @@ class User extends Authenticatable
     protected $appends = ['foto_url'];
 
     public function getFotoUrlAttribute()
-{
-    if ($this->foto) {
-        return url('storage/' . $this->foto);
-    }
-    return url('images/default-user.png');
-}
+    {
+        if ($this->foto) {
+            return asset('storage/' . $this->foto);
 
+        }
+        return url('images/default-user.png');
+    }
 
 
     // Relacionamento Many-to-Many com Aviso

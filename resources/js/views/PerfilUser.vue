@@ -16,7 +16,7 @@
         <div class="card mb-5 shadow-sm border-0" id="bloco-perfil">
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <img
-              :src="user.foto_url || 'https://via.placeholder.com/150'"
+              :src="user && user.foto_url ? user.foto_url : 'https://via.placeholder.com/150'"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
@@ -24,7 +24,7 @@
 
 
             <div class="text-center text-md-start">
-              <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
+              <h3 v-if="user" class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
               <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
               <p class="mb-1"><i class="fas fa-phone me-2"></i>{{ user.telefone }}</p>
               <p class="mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ user.endereco }}</p>
@@ -145,27 +145,37 @@ import axios from 'axios'
 import NavDashboard from '../components/NavDashboard.vue'
 import SidebarDashboard from '../components/SidebarDashboard.vue'
 
-const user = ref({})
+const user = ref(null)
 const doacoes = ref([])
 const ministerios = ref([])
 const processo = ref(null)
 
+
+
 const formatDate = (dateStr) => {
-  const options = { year: 'numeric', month: 'short', day: 'numeric' }
-  return new Date(dateStr).toLocaleDateString('pt-PT', options)
+  if (!dateStr) return 'Data não informada'
+  const date = new Date(dateStr)
+  if (isNaN(date.getTime())) return 'Data inválida'
+  return date.toLocaleDateString('pt-PT', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/user')
-
-    user.value = res.data.user
-    doacoes.value = res.data.doacoes
-    ministerios.value = res.data.ministerios
-    processo.value = res.data.processo
-
+    // usa explicitamente a baseURL (útil para debug)
+    const url = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api'}/user`
+    console.log('A pedir dados ao endpoint:', url)
+    const res = await axios.get('/user') // isto usa axios.defaults.baseURL
+    console.log('Resposta /user:', res)
+    if (res?.data?.user) {
+      user.value = res.data.user
+      doacoes.value = res.data.doacoes ?? []
+      ministerios.value = res.data.ministerios ?? []
+      processo.value = res.data.processo ?? null
+    } else {
+      console.warn('Resposta inesperada do endpoint /user', res.data)
+    }
   } catch (error) {
-    console.error('Erro ao carregar dados:', error)
+    console.error('Erro ao carregar dados:', error.response ?? error)
   }
 })
 

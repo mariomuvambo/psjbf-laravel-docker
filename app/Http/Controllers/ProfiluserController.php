@@ -52,7 +52,6 @@ class ProfiluserController extends Controller
             $imagePath = $request->file('image')->store('profilusers', 'public'); 
 
         }
-       
 
         $profiluser = Profiluser::create([
             'name' => $request->name,
