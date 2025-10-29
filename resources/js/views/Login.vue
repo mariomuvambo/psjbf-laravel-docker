@@ -1,44 +1,49 @@
 <template>
   <NavbarHome />
-  
-  <div class="login-container">
-    <div class="login-box">
-      <h1 class="login-title">Login</h1>
-      
-      <form @submit.prevent="login" class="login-form">
-        <div class="form-group">
+
+  <div class="login-container d-flex justify-content-center align-items-center">
+    <div class="login-box p-4 shadow rounded">
+      <h1 class="login-title text-center mb-4">Login</h1>
+
+      <form @submit.prevent="login">
+        <!-- Email -->
+        <div class="mb-3">
           <input 
             type="email" 
             v-model="email" 
             placeholder="Email" 
             class="form-control" 
-            required 
+            required
           />
         </div>
 
-        <div class="form-group">
+        <!-- Senha -->
+        <div class="mb-3">
           <input 
             type="password" 
             v-model="password" 
             placeholder="Senha" 
             class="form-control" 
-            required 
+            required
           />
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">Entrar</button>
-        
-        <button type="button" class="btn btn-google w-100" @click="loginWithGoogle">
-        <img 
-          src="https://img.icons8.com/color/24/google-logo.png" 
-          alt="Google" 
-          class="google-icon"
-        />
+        <!-- Botão Login -->
+        <button type="submit" class="btn btn-primary w-100 mb-2">
+          Entrar
         </button>
 
-        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <!-- Login com Google -->
+        <button type="button" class="btn btn-outline-dark w-100 mb-3 d-flex align-items-center justify-content-center" @click="loginWithGoogle">
+          <img src="https://img.icons8.com/color/24/google-logo.png" alt="Google" class="me-2"/>
+          Entrar com Google
+        </button>
 
-        <router-link to="/recuperar-senha" class="forgot-password">
+        <!-- Mensagem de Erro -->
+        <p v-if="errorMessage" class="text-danger text-center">{{ errorMessage }}</p>
+
+        <!-- Recuperar Senha -->
+        <router-link to="/recuperar-senha" class="d-block text-center mt-3 text-decoration-underline text-primary">
           Esqueceu a senha?
         </router-link>
       </form>
@@ -47,138 +52,81 @@
 </template>
 
 <script>
-import axios from "axios";
 import NavbarHome from "../components/NavbarHome.vue";
 
 export default {
   components: { NavbarHome },
   data() {
     return {
-      email: "",
-      password: "",
-      errorMessage: "",
+      email: '',
+      password: '',
+      errorMessage: ''
     };
   },
   methods: {
     async login() {
+      this.errorMessage = '';
       try {
-        const response = await axios.post("/login", {
+        const { data } = await this.$axios.post('/login', {
           email: this.email,
-          password: this.password,
+          password: this.password
         });
 
-        const { token, user } = response.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        this.$router.push("/dashboard");
-      } catch (error) {
-        this.errorMessage = "Credenciais inválidas. Tente novamente.";
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        this.$router.push('/dashboard');
+      } catch (err) {
+        this.errorMessage = err.response?.data?.message || 'Credenciais inválidas. Tente novamente.';
       }
     },
     loginWithGoogle() {
-      window.location.href = "http://localhost:8000/api/auth/google";
-    },
-  },
-};
+      window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8000/api'}/auth/google`;
+    }
+  }
+}
 </script>
 
 <style scoped>
 .login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 1rem;
   min-height: 100vh;
   background-color: #8b0000;
+  padding: 2rem;
 }
 
 .login-box {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.15);
-  width: 100%;
+  background-color: #fff;
   max-width: 380px;
-  text-align: center;
+  width: 100%;
+  border-radius: 16px;
 }
 
 .login-title {
-  font-size: 2rem;
-  margin-bottom: 1.5rem;
   color: #8b0000;
   font-family: 'Segoe UI', sans-serif;
 }
 
-.form-group {
-  margin-bottom: 1.2rem;
-}
-
-.form-control {
-  width: 100%;
-  padding: 0.9rem;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  transition: border-color 0.3s;
-}
-
-.form-control:focus {
-  border-color: #8b0000;
-  outline: none;
-}
-
 .btn-primary {
   background-color: #8b0000;
-  color: #fff;
   border: none;
-  padding: 0.9rem;
-  border-radius: 8px;
   font-weight: 600;
-  font-size: 1rem;
-  margin-bottom: 1rem;
   transition: background-color 0.3s;
-  cursor: pointer;
 }
 
 .btn-primary:hover {
   background-color: #600000;
 }
 
-.btn-google {
+.btn-outline-dark {
+  border-color: #8b0000;
+  color: #8b0000;
+}
+
+.btn-outline-dark:hover {
   background-color: #8b0000;
   color: #fff;
-  padding: 0.9rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
-  transition: background-color 0.2s ease;
-  cursor: pointer;
 }
 
-.google-icon {
-  width: 20px;
-  height: 20px;
-}
-
-.btn-google:hover {
-  background-color: #f3f3f3;
-}
-
-.error-message {
-  color: red;
-  margin-top: 0.5rem;
+.text-danger {
   font-size: 0.9rem;
-}
-
-.forgot-password {
-  display: block;
-  margin-top: 1.2rem;
-  color: #8b0000;
-  font-size: 0.9rem;
-  text-decoration: underline;
-  transition: color 0.2s ease;
-}
-
-.forgot-password:hover {
-  color: #600000;
 }
 </style>

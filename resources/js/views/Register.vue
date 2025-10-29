@@ -1,29 +1,31 @@
 <template>
   <NavbarHome />
 
-  <div class="register-container">
-    <div class="register-box">
-      <h1 class="register-title">Registro</h1>
+  <div class="register-container d-flex justify-content-center align-items-center">
+    <div class="register-box p-4 shadow rounded">
+      <h1 class="register-title text-center mb-4">Registro</h1>
 
-      <form @submit.prevent="register" class="register-form">
+      <form @submit.prevent="register">
         <!-- Nome e Apelido -->
-        <div class="row">
-          <input type="text" placeholder="Nome" v-model="form.nome" class="form-control" required />
-          <input type="text" placeholder="Apelido" v-model="form.apelido" class="form-control" />
+        <div class="row mb-3">
+          <input type="text" v-model="form.nome" placeholder="Nome" class="form-control me-2" required />
+          <input type="text" v-model="form.apelido" placeholder="Apelido" class="form-control" />
         </div>
 
         <!-- Email e Telefone -->
-        <div class="row">
-          <input type="email" placeholder="Email" v-model="form.email" class="form-control" required />
-          <input type="text" placeholder="Telefone" v-model="form.telefone" class="form-control" />
+        <div class="row mb-3">
+          <input type="email" v-model="form.email" placeholder="Email" class="form-control me-2" required />
+          <input type="text" v-model="form.telefone" placeholder="Telefone" class="form-control" />
         </div>
 
         <!-- Endereço -->
-        <input type="text" placeholder="Endereço" v-model="form.endereco" class="form-control" />
+        <div class="mb-3">
+          <input type="text" v-model="form.endereco" placeholder="Endereço" class="form-control" />
+        </div>
 
         <!-- Gênero e Tipo de Usuário -->
-        <div class="row">
-          <select v-model="form.genero" class="form-control">
+        <div class="row mb-3">
+          <select v-model="form.genero" class="form-control me-2">
             <option disabled value="">Gênero</option>
             <option>Masculino</option>
             <option>Feminino</option>
@@ -38,36 +40,37 @@
         </div>
 
         <!-- Data de nascimento -->
-        <div class="form-group">
-          <label for="data_nascimento">Data de Nascimento</label>
+        <div class="mb-3">
+          <label for="data_nascimento" class="form-label">Data de Nascimento</label>
           <input type="date" id="data_nascimento" v-model="form.data_nascimento" class="form-control" />
         </div>
 
         <!-- Foto -->
-        <div class="form-group">
+        <div class="mb-3">
           <input type="file" @change="handleFileUpload" accept="image/*" class="form-control" />
-          <small v-if="fileError" class="error">{{ fileError }}</small>
+          <small v-if="fileError" class="text-danger">{{ fileError }}</small>
         </div>
 
         <!-- Senha -->
-        <div class="row">
-          <input type="password" placeholder="Senha" v-model="form.password" class="form-control" required />
-          <input type="password" placeholder="Confirmar Senha" v-model="form.password_confirmation" class="form-control" required />
+        <div class="row mb-3">
+          <input type="password" v-model="form.password" placeholder="Senha" class="form-control me-2" required />
+          <input type="password" v-model="form.password_confirmation" placeholder="Confirmar Senha" class="form-control" required />
         </div>
 
+        <!-- Botão -->
         <button type="submit" class="btn btn-primary w-100" :disabled="isSubmitting">
           {{ isSubmitting ? "Registrando..." : "Registrar" }}
         </button>
 
-        <p v-if="successMessage" class="success">{{ successMessage }}</p>
-        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+        <!-- Mensagens -->
+        <p v-if="successMessage" class="text-success text-center mt-2">{{ successMessage }}</p>
+        <p v-if="errorMessage" class="text-danger text-center mt-2">{{ errorMessage }}</p>
       </form>
     </div>
   </div>
 </template>
 
 <script>
-import axios from "axios";
 import NavbarHome from "../components/NavbarHome.vue";
 
 export default {
@@ -119,27 +122,22 @@ export default {
           if (value !== null && value !== "") formData.append(key, value);
         });
 
-        const response = await axios.post(
+        const { data } = await this.$axios.post(
           `${import.meta.env.VITE_API_URL || ""}/register`,
           formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Accept: "application/json",
-            },
-          }
+          { headers: { "Content-Type": "multipart/form-data" } }
         );
 
         this.successMessage = "Registro efetuado com sucesso! Redirecionando...";
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
 
         setTimeout(() => this.$router.push("/login"), 3000);
-      } catch (error) {
-        console.error("Erro no registro:", error.response?.data || error);
+      } catch (err) {
+        console.error(err);
         this.errorMessage =
-          error.response?.data?.message ||
-          error.response?.data?.errors?.foto?.[0] ||
+          err.response?.data?.message ||
+          err.response?.data?.errors?.foto?.[0] ||
           "Erro ao registrar. Verifique os dados e tente novamente.";
       } finally {
         this.isSubmitting = false;
@@ -151,21 +149,16 @@ export default {
 
 <style scoped>
 .register-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
   min-height: 100vh;
-  background: #8b0000;
+  background-color: #8b0000;
   padding: 2rem;
 }
 
 .register-box {
-  background: #fff;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
   max-width: 600px;
   width: 100%;
+  border-radius: 12px;
 }
 
 .register-title {
@@ -174,26 +167,6 @@ export default {
   font-size: 2rem;
   text-align: center;
   margin-bottom: 2rem;
-  text-transform: uppercase;
-}
-
-.register-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-}
-
-.row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-}
-
-.form-control {
-  padding: 0.9rem;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1rem;
 }
 
 .form-control:focus {
@@ -203,33 +176,12 @@ export default {
 
 .btn-primary {
   background-color: #8b0000;
-  color: #fff;
   border: none;
-  padding: 1rem;
   font-weight: bold;
-  border-radius: 6px;
-  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
 .btn-primary:hover {
   background-color: #600000;
-}
-
-.success {
-  color: green;
-  text-align: center;
-  font-weight: bold;
-}
-
-.error {
-  color: red;
-  text-align: center;
-  font-weight: bold;
-}
-
-@media (max-width: 600px) {
-  .row {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

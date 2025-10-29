@@ -11,67 +11,57 @@ use Illuminate\Support\Facades\Storage;
 class AuthController extends Controller
 {
     public function register(Request $request)
-    {
-        $validated = $request->validate([
-            'nome' => 'required|string|max:255',
-            'apelido' => 'nullable|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'telefone' => 'nullable|string|max:20',
-            'endereco' => 'nullable|string|max:255',
-            'genero' => 'nullable|in:Masculino,Feminino',
-            'data_nascimento' => 'nullable|date',
-            'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-            'password' => 'required|string|min:8|confirmed',
-        ]);
+{
+    $validated = $request->validate([
+        'nome' => 'required|string|max:255',
+        'apelido' => 'nullable|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'telefone' => 'nullable|string|max:20',
+        'endereco' => 'nullable|string|max:255',
+        'genero' => 'nullable|in:Masculino,Feminino',
+        'data_nascimento' => 'nullable|date',
+        'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+        'password' => 'required|string|min:8|confirmed',
+    ]);
 
-        $fotoPath = null;
-        if ($request->hasFile('foto')) {
-            // Armazena no R2 (S3)
-            $fotoPath = $request->file('foto')->store('fotos', 's3');
-        }
+    $fotoPath = $request->hasFile('foto') ? $request->file('foto')->store('fotos', 's3') : null;
 
-        $user = User::create([
-            'nome' => $validated['nome'],
-            'apelido' => $validated['apelido'] ?? null,
-            'email' => $validated['email'],
-            'telefone' => $validated['telefone'] ?? null,
-            'endereco' => $validated['endereco'] ?? null,
-            'genero' => $validated['genero'] ?? null,
-            'data_nascimento' => $validated['data_nascimento'] ?? null,
-            'tipo_usuario' => $validated['tipo_usuario'],
-            'foto' => $fotoPath,
-            'password' => Hash::make($validated['password']),
-        ]);
+    $user = User::create([
+        ...$validated,
+        'foto' => $fotoPath,
+        'password' => Hash::make($validated['password']),
+    ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+    $token = $user->createToken('auth_token')->plainTextToken;
 
-       return response()->json([
-            'message' => 'Usuário registrado com sucesso',
-            'token' => $token,
-            'user' => $user, // foto_url já é incluído automaticamente
-        ], 201);
-            }
+    return response()->json([
+        'message' => 'Usuário registrado com sucesso',
+        'token' => $token,
+        'user' => $user, // foto_url incluído via $appends
+    ], 201);
+}
 
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-        ]);
+public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+    ]);
 
-        if (!Auth::attempt($credentials)) {
-            return response()->json(['message' => 'Credenciais inválidas'], 401);
-        }
-
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'token' => $token,
-            'user' => $user, // foto_url incluído
-        ]);
+    if (!Auth::attempt($credentials)) {
+        return response()->json(['message' => 'Credenciais inválidas'], 401);
     }
+
+    $user = Auth::user();
+    $token = $user->createToken('auth_token')->plainTextToken;
+
+    return response()->json([
+        'token' => $token,
+        'user' => $user,
+    ]);
+}
+
 
     public function logout(Request $request)
     {
