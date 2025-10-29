@@ -95,15 +95,8 @@ export default {
   },
   methods: {
     handleFileUpload(event) {
-  const file = event.target.files[0];
-  if (file && file.size > 5 * 1024 * 1024) { // 5MB em bytes
-    this.errorMessage = "A imagem deve ter no máximo 5MB.";
-    this.form.foto = null;
-    event.target.value = ""; // limpa input
-  } else {
-    this.form.foto = file;
-  }
-},
+      this.form.foto = event.target.files[0];
+    },
     async register() {
       try {
         const formData = new FormData();
