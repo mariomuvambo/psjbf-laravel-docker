@@ -2,17 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\WelcomeMail;
-use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Storage;
 
 class AuthController extends Controller
 {
-public function register(Request $request)
+    public function register(Request $request)
     {
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
@@ -23,13 +21,14 @@ public function register(Request $request)
             'genero' => 'nullable|in:Masculino,Feminino',
             'data_nascimento' => 'nullable|date',
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // até 5 MB
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
         $fotoPath = null;
         if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('fotos', 'public');
+            // Armazena no R2 (S3)
+            $fotoPath = $request->file('foto')->store('fotos', 's3');
         }
 
         $user = User::create([
@@ -50,13 +49,7 @@ public function register(Request $request)
         return response()->json([
             'message' => 'Usuário registrado com sucesso',
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'tipo_usuario' => $user->tipo_usuario,
-                'foto' => $user->foto ? asset('storage/' . $user->foto) : null,
-            ],
+            'user' => $user->fresh(['foto_url']),
         ], 201);
     }
 
@@ -76,13 +69,7 @@ public function register(Request $request)
 
         return response()->json([
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'tipo_usuario' => $user->tipo_usuario,
-                'foto' => $user->foto ? asset('storage/' . $user->foto) : null,
-            ],
+            'user' => $user->fresh(['foto_url']),
         ]);
     }
 
@@ -94,20 +81,17 @@ public function register(Request $request)
 
     public function listarUsuarios()
     {
-        // ✅ Ajuste 2: protege acesso e garante foto_url em cada item
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->tipo_usuario !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
-        $usuarios = User::all()->map(function ($u) {
-            return [
-                'id' => $u->id,
-                'nome' => $u->nome,
-                'email' => $u->email,
-                'tipo_usuario' => $u->tipo_usuario,
-                'foto' => $u->foto_url, // acessor
-            ];
-        });
+        $usuarios = User::all()->map(fn($u) => [
+            'id' => $u->id,
+            'nome' => $u->nome,
+            'email' => $u->email,
+            'tipo_usuario' => $u->tipo_usuario,
+            'foto' => $u->foto_url,
+        ]);
 
         $estatisticas = [
             'total' => User::count(),
@@ -126,7 +110,7 @@ public function register(Request $request)
     {
         $user = User::findOrFail($id);
 
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->tipo_usuario !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
@@ -135,7 +119,6 @@ public function register(Request $request)
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote,admin',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-
         ]);
 
         $user->nome = $validated['nome'];
@@ -143,33 +126,31 @@ public function register(Request $request)
         $user->tipo_usuario = $validated['tipo_usuario'];
 
         if ($request->hasFile('foto')) {
-            // ✅ Ajuste 3: substitui a foto antiga e mantém consistência
-            if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
-                \Storage::disk('public')->delete($user->foto);
+            // Remove foto antiga
+            if ($user->foto && Storage::disk('s3')->exists($user->foto)) {
+                Storage::disk('s3')->delete($user->foto);
             }
-
-            $user->foto = $request->file('foto')->store('fotos', 'public');
+            $user->foto = $request->file('foto')->store('fotos', 's3');
         }
 
         $user->save();
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso',
-            'user' => $user->fresh(),
+            'user' => $user->fresh(['foto_url']),
         ]);
     }
 
     public function deletarUsuario($id)
     {
-        if (Auth::user()->role !== 'admin') {
+        if (Auth::user()->tipo_usuario !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
         $user = User::findOrFail($id);
 
-        // (Opcional) apagar foto do storage
-        if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
-            \Storage::disk('public')->delete($user->foto);
+        if ($user->foto && Storage::disk('s3')->exists($user->foto)) {
+            Storage::disk('s3')->delete($user->foto);
         }
 
         $user->delete();

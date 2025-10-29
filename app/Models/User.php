@@ -56,17 +56,25 @@ class User extends Authenticatable
     ];
     protected $appends = ['foto_url'];
 
-    public function getFotoUrlAttribute()
-{
-    if ($this->foto) {
-        if (str_starts_with($this->foto, 'http')) {
-            return $this->foto; // já é URL completa
-        }
-        return Storage::disk('s3')->url($this->foto);
-    }
-    return url('images/default-user.png');
-}
+//     public function getFotoUrlAttribute()
+// {
+//     if ($this->foto) {
+//         if (str_starts_with($this->foto, 'http')) {
+//             return $this->foto; // já é URL completa
+//         }
+//         return Storage::disk('s3')->url($this->foto);
+//     }
+//     return url('images/default-user.png');
+// }
 
+public function getFotoUrlAttribute()
+    {
+        if ($this->foto) {
+            return asset('storage/' . $this->foto);
+
+        }
+        return url('images/default-user.png');
+    }
 
 
     // Relacionamento Many-to-Many com Aviso
