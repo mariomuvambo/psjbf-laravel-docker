@@ -1,19 +1,15 @@
 <template>
   <div class="d-flex flex-column flex-lg-row">
-    <!-- Sidebar - Mobile Hidden, Desktop Visible -->
+    <!-- Sidebar - Desktop -->
     <div class="d-none d-lg-block flex-shrink-0">
       <SidebarDashboard />
     </div>
 
     <!-- Main Content -->
     <main class="flex-grow-1 bg-light">
-      <!-- Navbar - Always Visible -->
       <NavDashboard />
-
-      <!-- Main Content Area -->
       <div class="container py-4">
         <section class="anniversaries row justify-content-center mt-5">
-          
           <!-- Mensagem caso não haja aniversariantes -->
           <div v-if="aniversariantes.length === 0" class="alert alert-info text-center w-100">
             🎉 Nenhum aniversariante disponível neste momento.
@@ -30,7 +26,7 @@
               <!-- Profile Image -->
               <div class="photo-wrapper p-3">
                 <img
-                  :src="user.foto_url"
+                  :src="user.foto_url || 'https://via.placeholder.com/100'"
                   :alt="`Imagem de ${user.nome}`"
                   class="profile-pic"
                 />
@@ -38,7 +34,9 @@
 
               <!-- User Info & Actions -->
               <div class="card-body">
-                <h5 class="card-title">{{ user.nome }} <small>({{ user.apelido }})</small></h5>
+                <h5 class="card-title">
+                  {{ user.nome }} <small v-if="user.apelido">({{ user.apelido }})</small>
+                </h5>
                 <p class="text-muted">🎂 {{ formatDate(user.data_nascimento) }}</p>
 
                 <div class="actions d-flex justify-content-center gap-2 mb-2">
@@ -74,13 +72,12 @@
       </div>
     </main>
 
-    <!-- Sidebar - Desktop Hidden, Mobile Visible -->
+    <!-- Sidebar - Mobile -->
     <div class="d-block d-lg-none flex-shrink-0">
       <SidebarDashboard />
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from 'axios';
@@ -98,45 +95,38 @@ export default {
     this.fetchAniversariantes();
   },
   methods: {
-   getToken() {
-    return localStorage.getItem('token');
-  },
-  fetchAniversariantes() {
-    axios
-      .get('/aniversariantes', {
-        headers: { Authorization: `Bearer ${this.getToken()}` }
-      })
-      .then(response => {
-        this.aniversariantes = response.data.map(user => ({
-          ...user,
-          showCommentBox: false,
-          newComment: ''
-        }));
-      })
-      .catch(error => {
-        console.error('Erro ao carregar aniversariantes:', error);
-      });
-  },
-    formatDate(date) {
-      return new Date(date).toLocaleDateString('pt-BR');
+    getToken() {
+      return localStorage.getItem('token');
     },
-    getImageUrl(path) {
-      return path ? `http://localhost:8000/storage/${path}` : 'https://via.placeholder.com/100';
-    }, 
+    fetchAniversariantes() {
+      axios
+        .get('/aniversariantes', {
+          headers: { Authorization: `Bearer ${this.getToken()}` }
+        })
+        .then(response => {
+          this.aniversariantes = response.data.map(user => ({
+            ...user,
+            showCommentBox: false,
+            newComment: '',
+            comentarios: user.comentarios || []
+          }));
+        })
+        .catch(error => {
+          console.error('Erro ao carregar aniversariantes:', error);
+        });
+    },
+    formatDate(date) {
+      return new Date(date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    },
     like(user) {
       axios
         .post(`/aniversariantes/${user.id}/curtir`, {}, {
           headers: { Authorization: `Bearer ${this.getToken()}` }
         })
-        .then(() => {
-          user.total_curtidaRecebidas++;
-        })
+        .then(() => user.total_curtidaRecebidas++)
         .catch(error => {
-          if (error.response?.status === 409) {
-            alert('Você já curtiu este aniversariante.');
-          } else {
-            console.error('Erro ao curtir:', error);
-          }
+          if (error.response?.status === 409) alert('Você já curtiu este aniversariante.');
+          else console.error('Erro ao curtir:', error);
         });
     },
     toggleComment(user) {
@@ -146,19 +136,15 @@ export default {
       if (!user.newComment) return;
 
       axios
-        .post(
-          `/aniversariantes/${user.id}/comentar`,
-          { mensagem: user.newComment },
-          { headers: { Authorization: `Bearer ${this.getToken()}` } }
-        )
+        .post(`/aniversariantes/${user.id}/comentar`, { mensagem: user.newComment }, {
+          headers: { Authorization: `Bearer ${this.getToken()}` }
+        })
         .then(response => {
           user.comentarios.push(response.data);
           user.total_comentariosRecebidos++;
           user.newComment = '';
         })
-        .catch(error => {
-          console.error('Erro ao comentar:', error);
-        });
+        .catch(error => console.error('Erro ao comentar:', error));
     }
   }
 };
@@ -173,9 +159,8 @@ export default {
   object-fit: cover;
 }
 
-/* Responsive Layout Adjustments */
+/* Responsividade */
 @media (max-width: 991px) {
-  /* Adjust cards for smaller screens */
   .anniversaries .card {
     margin-bottom: 15px;
   }
