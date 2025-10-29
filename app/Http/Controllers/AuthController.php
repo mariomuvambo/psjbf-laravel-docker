@@ -46,12 +46,12 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+       return response()->json([
             'message' => 'Usuário registrado com sucesso',
             'token' => $token,
-            'user' => $user->fresh(['foto_url']),
+            'user' => $user, // foto_url já é incluído automaticamente
         ], 201);
-    }
+            }
 
     public function login(Request $request)
     {
@@ -69,7 +69,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => $user->fresh(['foto_url']),
+            'user' => $user, // foto_url incluído
         ]);
     }
 
@@ -135,10 +135,10 @@ class AuthController extends Controller
 
         $user->save();
 
-        return response()->json([
+       return response()->json([
             'message' => 'Usuário atualizado com sucesso',
-            'user' => $user->fresh(['foto_url']),
-        ]);
+            'user' => $user, // foto_url incluído
+]);
     }
 
     public function deletarUsuario($id)
