@@ -23,7 +23,7 @@ class AuthController extends Controller
             'genero' => 'nullable|in:Masculino,Feminino',
             'data_nascimento' => 'nullable|date',
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', 
             'password' => 'required|string|min:8|confirmed',
         ]);
 
@@ -128,7 +128,8 @@ class AuthController extends Controller
             'nome' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote,admin',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+
         ]);
 
         $user->nome = $validated['nome'];
