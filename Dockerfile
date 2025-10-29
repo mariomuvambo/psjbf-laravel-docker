@@ -11,8 +11,7 @@ ENV VITE_API_URL=${VITE_API_URL}
 COPY resources ./resources
 COPY public ./public
 
-RUN npm install
-RUN npm run build
+RUN npm install && npm run build
 
 
 # ==========================
@@ -25,37 +24,27 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_pgsql pgsql pdo mbstring exif pcntl bcmath gd zip \
     && docker-php-ext-enable pdo_pgsql pgsql
 
+# Aumentar limite de upload PHP
+RUN echo "upload_max_filesize=10M" > /usr/local/etc/php/conf.d/uploads.ini && \
+    echo "post_max_size=10M" >> /usr/local/etc/php/conf.d/uploads.ini
+
 WORKDIR /var/www/html
 
-# Copiar código backend
 COPY . .
-
-# Copiar build do frontend
 COPY --from=build-frontend /app/public/build ./public/build
 
-# Instalar Composer
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-
-# Instalar dependências Laravel
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Criar .env se não existir
 RUN php -r "if (!file_exists('.env')) copy('.env.example', '.env');"
-
-# ✅ Garantir diretórios e permissões
 RUN mkdir -p storage/app/public && \
     php artisan storage:link || true && \
-    chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    chown -R www-data:www-data storage bootstrap/cache
 
-# Gerar chave da aplicação
 RUN php artisan key:generate || true
 
-# Expor porta
 EXPOSE 8000
 
-# ==========================
-# ✅ COMANDO FINAL DE STARTUP
-# ==========================
 CMD php artisan config:clear && \
     php artisan cache:clear && \
     php artisan config:cache && \

@@ -19,9 +19,7 @@
         </div>
 
         <!-- Endereço -->
-        <div class="form-group">
-          <input type="text" placeholder="Endereço" v-model="form.endereco" class="form-control" />
-        </div>
+        <input type="text" placeholder="Endereço" v-model="form.endereco" class="form-control" />
 
         <!-- Gênero e Tipo de Usuário -->
         <div class="row">
@@ -39,34 +37,34 @@
           </select>
         </div>
 
-        
         <!-- Data de nascimento -->
         <div class="form-group">
           <label for="data_nascimento">Data de Nascimento</label>
           <input type="date" id="data_nascimento" v-model="form.data_nascimento" class="form-control" />
         </div>
 
-
         <!-- Foto -->
         <div class="form-group">
-          <input type="file" @change="handleFileUpload" class="form-control" />
+          <input type="file" @change="handleFileUpload" accept="image/*" class="form-control" />
+          <small v-if="fileError" class="error">{{ fileError }}</small>
         </div>
 
-        <!-- Senha e confirmação -->
+        <!-- Senha -->
         <div class="row">
           <input type="password" placeholder="Senha" v-model="form.password" class="form-control" required />
-          <input type="password" placeholder="Confirme a Senha" v-model="form.password_confirmation" class="form-control" required />
+          <input type="password" placeholder="Confirmar Senha" v-model="form.password_confirmation" class="form-control" required />
         </div>
 
-        <!-- Botão e mensagens -->
-        <button type="submit" class="btn btn-primary w-100">Registrar</button>
+        <button type="submit" class="btn btn-primary w-100" :disabled="isSubmitting">
+          {{ isSubmitting ? "Registrando..." : "Registrar" }}
+        </button>
+
         <p v-if="successMessage" class="success">{{ successMessage }}</p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </form>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from "axios";
@@ -91,49 +89,60 @@ export default {
       },
       successMessage: "",
       errorMessage: "",
+      fileError: "",
+      isSubmitting: false,
     };
   },
   methods: {
-    handleFileUpload(event) {
-      this.form.foto = event.target.files[0];
+    handleFileUpload(e) {
+      const file = e.target.files[0];
+      if (file && file.size > 5 * 1024 * 1024) {
+        this.fileError = "A imagem deve ter no máximo 5 MB.";
+        this.form.foto = null;
+        e.target.value = "";
+      } else {
+        this.fileError = "";
+        this.form.foto = file;
+      }
     },
+
     async register() {
+      if (this.fileError) return;
+
+      this.isSubmitting = true;
+      this.successMessage = "";
+      this.errorMessage = "";
+
       try {
         const formData = new FormData();
-
-        for (const key in this.form) {
-          if (this.form[key] !== null) {
-            formData.append(key, this.form[key]);
-          }
-        }
-
-        const response = await axios.post("/register", formData, {
-       headers: {
-            "Content-Type": "multipart/form-data",
-            Accept: "application/json",
-          },
+        Object.entries(this.form).forEach(([key, value]) => {
+          if (value !== null && value !== "") formData.append(key, value);
         });
 
+        const response = await axios.post(
+          `${import.meta.env.VITE_API_URL || ""}/api/register`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+              Accept: "application/json",
+            },
+          }
+        );
 
-        if (response.data && response.data.token) {
-          localStorage.setItem("token", response.data.token);
-          localStorage.setItem("user", JSON.stringify(response.data.user));
-        }
+        this.successMessage = "Registro efetuado com sucesso! Redirecionando...";
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("user", JSON.stringify(response.data.user));
 
-        this.successMessage = "Registro efetuado com sucesso! Você será redirecionado em 3 segundos.";
-        this.errorMessage = "";
-
-        // Espera 3 segundos antes de redirecionar
-        await new Promise(resolve => setTimeout(resolve, 3000));
-
-        this.$router.push("/login");
-
+        setTimeout(() => this.$router.push("/login"), 3000);
       } catch (error) {
+        console.error("Erro no registro:", error.response?.data || error);
         this.errorMessage =
           error.response?.data?.message ||
+          error.response?.data?.errors?.foto?.[0] ||
           "Erro ao registrar. Verifique os dados e tente novamente.";
-
-          this.successMessage = "";
+      } finally {
+        this.isSubmitting = false;
       }
     },
   },
@@ -148,11 +157,10 @@ export default {
   min-height: 100vh;
   background: #8b0000;
   padding: 2rem;
-  box-sizing: border-box;
 }
 
 .register-box {
-  background: #ffffff;
+  background: #fff;
   padding: 2rem;
   border-radius: 12px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
@@ -162,8 +170,8 @@ export default {
 
 .register-title {
   color: #8b0000;
-  font-family: 'Georgia', serif;
-  font-size: 2.2rem;
+  font-family: "Georgia", serif;
+  font-size: 2rem;
   text-align: center;
   margin-bottom: 2rem;
   text-transform: uppercase;
@@ -175,12 +183,6 @@ export default {
   gap: 1.2rem;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -189,12 +191,9 @@ export default {
 
 .form-control {
   padding: 0.9rem;
-  font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 6px;
-  transition: border-color 0.3s ease;
-  width: 100%;
-  box-sizing: border-box;
+  font-size: 1rem;
 }
 
 .form-control:focus {
@@ -207,11 +206,9 @@ export default {
   color: #fff;
   border: none;
   padding: 1rem;
-  font-size: 1rem;
   font-weight: bold;
   border-radius: 6px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .btn-primary:hover {
@@ -220,16 +217,14 @@ export default {
 
 .success {
   color: green;
-  font-weight: bold;
-  margin-top: 1rem;
   text-align: center;
+  font-weight: bold;
 }
 
 .error {
   color: red;
-  font-weight: bold;
-  margin-top: 1rem;
   text-align: center;
+  font-weight: bold;
 }
 
 @media (max-width: 600px) {
@@ -237,6 +232,4 @@ export default {
     grid-template-columns: 1fr;
   }
 }
-
-
 </style>

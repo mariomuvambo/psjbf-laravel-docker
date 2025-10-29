@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+public function register(Request $request)
     {
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
@@ -23,16 +23,15 @@ class AuthController extends Controller
             'genero' => 'nullable|in:Masculino,Feminino',
             'data_nascimento' => 'nullable|date',
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', 
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', // até 5 MB
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Upload da foto (se enviada)
         $fotoPath = null;
-        if ($request->hasFile('foto')) { 
+        if ($request->hasFile('foto')) {
             $fotoPath = $request->file('foto')->store('fotos', 'public');
         }
- 
+
         $user = User::create([
             'nome' => $validated['nome'],
             'apelido' => $validated['apelido'] ?? null,
@@ -46,10 +45,19 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Mail opcional
-        // Mail::to($user->email)->queue(new WelcomeMail($user));
+        $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
+        return response()->json([
+            'message' => 'Usuário registrado com sucesso',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo_usuario' => $user->tipo_usuario,
+                'foto' => $user->foto ? asset('storage/' . $user->foto) : null,
+            ],
+        ], 201);
     }
 
     public function login(Request $request)
@@ -59,31 +67,29 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'nome' => $user->nome,
-                    'email' => $user->email,
-                    'tipo_usuario' => $user->tipo_usuario,
-                    'role' => $user->role,
-                    // ✅ Ajuste 1: usa accessor para URL real da imagem
-                    'foto' => $user->foto_url,
-                ],
-            ], 200);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
-        return response()->json(['message' => 'Credenciais inválidas'], 401);
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo_usuario' => $user->tipo_usuario,
+                'foto' => $user->foto ? asset('storage/' . $user->foto) : null,
+            ],
+        ]);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logout efetuado com sucesso'], 200);
+        return response()->json(['message' => 'Logout efetuado com sucesso']);
     }
 
     public function listarUsuarios()
