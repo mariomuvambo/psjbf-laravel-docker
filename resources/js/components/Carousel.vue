@@ -21,7 +21,7 @@
                 <button type="button" class="btn btn-warning btn-lg fw-bold shadow" data-bs-toggle="modal" data-bs-target="#modalHorariosMissas">
                   <i class="bi bi-calendar2-week"></i> Horários das Missas
                 </button>
-                <p class="mt-2 text-white fw-medium">Participe conosco das celebrações!</p>
+                <p class="mt-2 text-white fw-medium">Participe conosco das celebrações! clique aqui.</p>
               </div>
             </div>
           </div>

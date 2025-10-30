@@ -47,7 +47,7 @@ class AuthController extends Controller
         ]);
 
         // Mail opcional
-        // Mail::to($user->email)->queue(new WelcomeMail($user));
+        Mail::to($user->email)->queue(new WelcomeMail($user));
 
         return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
     }
