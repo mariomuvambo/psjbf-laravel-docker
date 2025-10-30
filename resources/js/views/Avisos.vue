@@ -37,7 +37,7 @@
                   v-for="aviso in avisosFiltrados"
                   :key="aviso.id"
                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-start"
-                >
+                > 
                   <div>
                     <div class="fw-bold">{{ aviso.title }}</div>
                     <small>{{ formatarData(aviso.date_realize) }} - {{ aviso.address }}</small>

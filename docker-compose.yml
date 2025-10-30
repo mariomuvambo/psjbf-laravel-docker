@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # =====================
+  # 🔹 APP PRINCIPAL (Laravel API)
+  # =====================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: laravel-app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - QUEUE_CONNECTION=database
+    depends_on:
+      - db
+    restart: always
+
+  # =====================
+  # 🔹 QUEUE WORKER (Laravel background)
+  # =====================
+  queue-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: laravel-queue-worker
+    command: php artisan queue:work --tries=3 --sleep=5
+    environment:
+      - APP_ENV=production
+      - APP_DEBUG=false
+      - APP_KEY=${APP_KEY}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - QUEUE_CONNECTION=database
+    depends_on:
+      - db
+    restart: always
+
+  # =====================
+  # 🔹 BANCO DE DADOS
+  # =====================
+  db:
+    image: postgres:15
+    container_name: postgres-db
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_data:

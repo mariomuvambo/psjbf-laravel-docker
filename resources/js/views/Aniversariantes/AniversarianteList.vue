@@ -30,7 +30,7 @@
               <!-- Profile Image -->
               <div class="photo-wrapper p-3">
                 <img
-                  :src="getImageUrl(user.foto)"
+                  :src="user.foto_url"
                   :alt="`Imagem de ${user.nome}`"
                   class="profile-pic"
                 />
@@ -98,31 +98,31 @@ export default {
     this.fetchAniversariantes();
   },
   methods: {
-    getToken() {
-      return localStorage.getItem('token');
-    },
-    fetchAniversariantes() {
-      axios
-        .get('/aniversariantes', {
-          headers: { Authorization: `Bearer ${this.getToken()}` }
-        })
-        .then(response => {
-          this.aniversariantes = response.data.map(user => ({
-            ...user,
-            showCommentBox: false,
-            newComment: ''
-          }));
-        })
-        .catch(error => {
-          console.error('Erro ao carregar aniversariantes:', error);
-        });
-    },
+   getToken() {
+    return localStorage.getItem('token');
+  },
+  fetchAniversariantes() {
+    axios
+      .get('/aniversariantes', {
+        headers: { Authorization: `Bearer ${this.getToken()}` }
+      })
+      .then(response => {
+        this.aniversariantes = response.data.map(user => ({
+          ...user,
+          showCommentBox: false,
+          newComment: ''
+        }));
+      })
+      .catch(error => {
+        console.error('Erro ao carregar aniversariantes:', error);
+      });
+  },
     formatDate(date) {
       return new Date(date).toLocaleDateString('pt-BR');
     },
     getImageUrl(path) {
       return path ? `http://localhost:8000/storage/${path}` : 'https://via.placeholder.com/100';
-    },
+    }, 
     like(user) {
       axios
         .post(`/aniversariantes/${user.id}/curtir`, {}, {
