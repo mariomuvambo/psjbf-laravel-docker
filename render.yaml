@@ -86,7 +86,7 @@ services:
       php artisan config:clear && \
       php artisan cache:clear && \
       php artisan config:cache && \
-      php artisan queue:work --tries=3 --sleep=5
+      php artisan queue:work 
     envVars:
       - key: APP_ENV
         value: production
