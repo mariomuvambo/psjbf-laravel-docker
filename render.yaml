@@ -11,13 +11,61 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: true
       - key: PORT
         value: 8000
-      - key: VITE_API_URL
-        value: https://psjbf.onrender.com/api
+      - key: APP_URL
+        value: https://psjbf.onrender.com
+      - key: ASSET_URL
+        value: https://psjbf.onrender.com
+      - key: APP_KEY
+        value: base64:bRnHHl9a54r7JSQvXurwsLND2/Owp7zY3Q2IfjwNOZE=
       - key: QUEUE_CONNECTION
         value: database
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d3qjhdm3jp1c738m1fd0-a.oregon-postgres.render.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: psjbf_db_swjb
+      - key: DB_USERNAME
+        value: psjbf_db_swjb_user
+      - key: DB_PASSWORD
+        value: PJoEqNNZZbOGJAZAllqiPh4kwFUgpiX7
+      - key: FILESYSTEM_DISK
+        value: s3
+      - key: AWS_ACCESS_KEY_ID
+        value: 0e7117ef1744652b4402653d1fc9f255
+      - key: AWS_SECRET_ACCESS_KEY
+        value: 1227a3061b64b824bb03725cdd312016eff9f8db5bb337b2
+      - key: AWS_DEFAULT_REGION
+        value: auto
+      - key: AWS_BUCKET
+        value: psjbf-uploads
+      - key: AWS_ENDPOINT
+        value: https://94c6e2cf641753af5aa27dbd6caef9e0.r2.cloudflarestorage.com
+      - key: AWS_URL
+        value: https://94c6e2cf641753af5aa27dbd6caef9e0.r2.cloudflarestorage.com/psjbf-uploads
+      - key: MAIL_MAILER
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.gmail.com
+      - key: MAIL_PORT
+        value: 587
+      - key: MAIL_USERNAME
+        value: mariomuvambo1@gmail.com
+      - key: MAIL_PASSWORD
+        value: sfsdkluqliqcllzv
+      - key: MAIL_ENCRYPTION
+        value: tls
+      - key: MAIL_FROM_ADDRESS
+        value: mariomuvambo1@gmail.com
+      - key: MAIL_FROM_NAME
+        value: PSJBF
+      - key: VITE_API_URL
+        value: https://psjbf.onrender.com/api
     autoDeploy: true
     startCommand: |
       php artisan config:clear && \
@@ -27,13 +75,13 @@ services:
       php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
 
   # ==========================================
-  # ⚙️ LARAVEL QUEUE WORKER (Processa jobs)
+  # ⚙️ LARAVEL QUEUE WORKER (Processa Jobs)
   # ==========================================
   - type: worker
     name: psjbf-queue-worker
     env: docker
-    dockerfilePath: ./Dockerfile
     plan: free
+    dockerfilePath: ./Dockerfile
     startCommand: |
       php artisan config:clear && \
       php artisan cache:clear && \
@@ -43,8 +91,24 @@ services:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
-        value: false
+        value: true
+      - key: APP_KEY
+        value: base64:bRnHHl9a54r7JSQvXurwsLND2/Owp7zY3Q2IfjwNOZE=
+      - key: APP_URL
+        value: https://psjbf.onrender.com
       - key: QUEUE_CONNECTION
         value: database
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d3qjhdm3jp1c738m1fd0-a.oregon-postgres.render.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: psjbf_db_swjb
+      - key: DB_USERNAME
+        value: psjbf_db_swjb_user
+      - key: DB_PASSWORD
+        value: PJoEqNNZZbOGJAZAllqiPh4kwFUgpiX7
       - key: VITE_API_URL
         value: https://psjbf.onrender.com/api
