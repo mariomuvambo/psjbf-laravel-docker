@@ -60,25 +60,28 @@ export default {
     };
   },
   methods: {
-    async login() {
-      try {
-        const response = await axios.post("/login", {
-          email: this.email,
-          password: this.password,
-        });
+  async login() {
+    try {
+      const response = await axios.post("/login", {
+        email: this.email,
+        password: this.password,
+      });
 
-        const { token, user } = response.data;
-        localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
-        this.$router.push("/dashboard");
-      } catch (error) {
-        this.errorMessage = "Credenciais inválidas. Tente novamente.";
-      }
-    },
-    loginWithGoogle() {
-      window.location.href = "http://localhost:8000/api/auth/google";
-    },
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify({
+        ...user,
+        photo: user.foto || '/default-user.png' // garante fallback
+      }));
+
+      this.$router.push("/dashboard");
+    } catch (error) {
+      this.errorMessage = "Credenciais inválidas. Tente novamente.";
+    }
   },
+},
+
+ 
 };
 </script>
 

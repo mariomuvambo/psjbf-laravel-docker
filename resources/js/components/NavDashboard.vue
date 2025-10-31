@@ -222,9 +222,10 @@ const openMobileMenu = ref(null)
 const userData = JSON.parse(localStorage.getItem('user')) || {}
 const user = reactive({
   name: userData?.nome || 'Usuário',
-  photo: userData?.foto || '/default-user.png',
+  photo: userData?.photo || '/default-user.png', // ✅ usa a URL pública
   role: userData?.role || '',
 })
+
 
 // --- dados de menu (idos os mesmos do Sidebar)
 const navItems = [
