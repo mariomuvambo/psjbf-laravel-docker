@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Mail\WelcomeMail;
-use Illuminate\Support\Facades\Mail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -23,16 +24,18 @@ class AuthController extends Controller
             'genero' => 'nullable|in:Masculino,Feminino',
             'data_nascimento' => 'nullable|date',
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120', 
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Upload da foto (se enviada)
         $fotoPath = null;
-        if ($request->hasFile('foto')) { 
-            $fotoPath = $request->file('foto')->store('fotos', 'public');
+        if ($request->hasFile('foto')) {
+            // gera nome único automaticamente
+            $fotoPath = $request->file('foto')->store('fotos', 's3');
+            // opcional: tornar arquivo público (R2 via S3 geralmente já usa URL pública)
+            // Storage::disk('s3')->setVisibility($fotoPath, 'public');
         }
- 
+
         $user = User::create([
             'nome' => $validated['nome'],
             'apelido' => $validated['apelido'] ?? null,
@@ -46,10 +49,24 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        // Mail opcional
+        // fila de email (se quiser)
         Mail::to($user->email)->queue(new WelcomeMail($user));
 
-        return response()->json(['message' => 'Usuário registrado com sucesso'], 201);
+        // retornar token já logado (útil para SPA)
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Usuário registrado com sucesso',
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo_usuario' => $user->tipo_usuario,
+                'role' => $user->role ?? null,
+                'foto' => $user->foto_url,
+            ],
+        ], 201);
     }
 
     public function login(Request $request)
@@ -59,25 +76,24 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'nome' => $user->nome,
-                    'email' => $user->email,
-                    'tipo_usuario' => $user->tipo_usuario,
-                    'role' => $user->role,
-                    // ✅ Ajuste 1: usa accessor para URL real da imagem
-                    'foto' => $user->foto_url,
-                ],
-            ], 200);
+        if (!Auth::attempt($credentials)) {
+            return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
-        return response()->json(['message' => 'Credenciais inválidas'], 401);
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo_usuario' => $user->tipo_usuario,
+                'role' => $user->role ?? null,
+                'foto' => $user->foto_url,
+            ],
+        ], 200);
     }
 
     public function logout(Request $request)
@@ -88,8 +104,8 @@ class AuthController extends Controller
 
     public function listarUsuarios()
     {
-        // ✅ Ajuste 2: protege acesso e garante foto_url em cada item
-        if (Auth::user()->role !== 'admin') {
+        $auth = Auth::user();
+        if (!$auth || $auth->role !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
@@ -99,7 +115,7 @@ class AuthController extends Controller
                 'nome' => $u->nome,
                 'email' => $u->email,
                 'tipo_usuario' => $u->tipo_usuario,
-                'foto' => $u->foto_url, // acessor
+                'foto' => $u->foto_url,
             ];
         });
 
@@ -118,18 +134,18 @@ class AuthController extends Controller
 
     public function atualizarUsuario(Request $request, $id)
     {
-        $user = User::findOrFail($id);
-
-        if (Auth::user()->role !== 'admin') {
+        $auth = Auth::user();
+        if (!$auth || $auth->role !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
+        $user = User::findOrFail($id);
+
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:users,email,' . $user->id,
+            'email' => ['required','email','max:255', Rule::unique('users')->ignore($user->id)],
             'tipo_usuario' => 'required|in:fiel,voluntario,sacerdote,admin',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
-
         ]);
 
         $user->nome = $validated['nome'];
@@ -137,33 +153,38 @@ class AuthController extends Controller
         $user->tipo_usuario = $validated['tipo_usuario'];
 
         if ($request->hasFile('foto')) {
-            // ✅ Ajuste 3: substitui a foto antiga e mantém consistência
-            if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
-                \Storage::disk('public')->delete($user->foto);
+            // apagar foto antiga (se existir)
+            if ($user->foto && Storage::disk('s3')->exists($user->foto)) {
+                Storage::disk('s3')->delete($user->foto);
             }
-
-            $user->foto = $request->file('foto')->store('fotos', 'public');
+            $user->foto = $request->file('foto')->store('fotos', 's3');
         }
 
         $user->save();
 
         return response()->json([
             'message' => 'Usuário atualizado com sucesso',
-            'user' => $user->fresh(),
+            'user' => [
+                'id' => $user->id,
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'tipo_usuario' => $user->tipo_usuario,
+                'foto' => $user->foto_url,
+            ],
         ]);
     }
 
     public function deletarUsuario($id)
     {
-        if (Auth::user()->role !== 'admin') {
+        $auth = Auth::user();
+        if (!$auth || $auth->role !== 'admin') {
             return response()->json(['message' => 'Acesso não autorizado.'], 403);
         }
 
         $user = User::findOrFail($id);
 
-        // (Opcional) apagar foto do storage
-        if ($user->foto && \Storage::disk('public')->exists($user->foto)) {
-            \Storage::disk('public')->delete($user->foto);
+        if ($user->foto && Storage::disk('s3')->exists($user->foto)) {
+            Storage::disk('s3')->delete($user->foto);
         }
 
         $user->delete();

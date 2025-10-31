@@ -58,12 +58,19 @@ class User extends Authenticatable
 
     public function getFotoUrlAttribute()
     {
-        if ($this->foto) {
-            return asset('storage/' . $this->foto);
-
+        if (!$this->foto) {
+            return null;
         }
-        return url('images/default-user.png');
+
+        // se já for URL completa (começa com http), retorna direto
+        if (str_starts_with($this->foto, 'http')) {
+            return $this->foto;
+        }
+
+        // caso contrário, assume que é um path no bucket e gera URL via disk s3
+        return Storage::disk(config('filesystems.default') ?: 's3')->url($this->foto);
     }
+
 
 
     // Relacionamento Many-to-Many com Aviso
