@@ -58,6 +58,17 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
     }
 });
 
+
+Route::get('/test-r2', function () {
+    try {
+        Storage::disk('s3')->put('teste.txt', 'Arquivo de teste Cloudflare R2');
+        return response()->json(['success' => true, 'files' => Storage::disk('s3')->allFiles()]);
+    } catch (Exception $e) {
+        return response()->json(['error' => $e->getMessage()]);
+    }
+});
+
+
 Route::get('/check-pdo', function () {
     return response()->json([
         'pdo_pgsql_loaded' => extension_loaded('pdo_pgsql'),

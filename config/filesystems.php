@@ -49,12 +49,13 @@ return [
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => true, // Necessário para Cloudflare R2
-            'visibility' => 'public', // deixa os arquivos acessíveis via URL
-            'throw' => false,
+            'use_path_style_endpoint' => true,
+            'url' => env('AWS_URL'),
+            'visibility' => 'public',
         ],
+
+
     ],
 
     /*

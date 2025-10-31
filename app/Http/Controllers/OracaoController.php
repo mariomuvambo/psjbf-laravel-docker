@@ -47,7 +47,7 @@ class OracaoController extends Controller
         $sacerdotes = User::where('role', 'sacerdote')->get();
 
         $oracoesCriadas = [];
- 
+
         foreach ($sacerdotes as $sacerdote) {
             $oracao = Oracoes::create([
                 'user_id' => Auth::id(),
