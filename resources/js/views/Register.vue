@@ -98,46 +98,44 @@ export default {
       this.form.foto = event.target.files[0];
     },
     async register() {
-  try {
-    const formData = new FormData();
+      try {
+        const formData = new FormData();
 
-    for (const key in this.form) {
-      if (this.form[key] !== null) {
-        formData.append(key, this.form[key]);
+        for (const key in this.form) {
+          if (this.form[key] !== null) {
+            formData.append(key, this.form[key]);
+          }
+        }
+
+        const response = await axios.post("/register", formData, {
+       headers: {
+            "Content-Type": "multipart/form-data",
+            Accept: "application/json",
+          },
+        });
+
+
+        if (response.data && response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("user", JSON.stringify(response.data.user));
+        }
+
+        this.successMessage = "Registro efetuado com sucesso! Você será redirecionado em 3 segundos.";
+        this.errorMessage = "";
+
+        // Espera 3 segundos antes de redirecionar
+        await new Promise(resolve => setTimeout(resolve, 3000));
+
+        this.$router.push("/login");
+
+      } catch (error) {
+        this.errorMessage =
+          error.response?.data?.message ||
+          "Erro ao registrar. Verifique os dados e tente novamente.";
+
+          this.successMessage = "";
       }
-    }
-
-    const response = await axios.post("/register", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Accept: "application/json",
-      },
-    });
-
-    if (response.data && response.data.token) {
-      const { token, user } = response.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify({
-        ...user,
-        photo: user.foto || '/default-user.png'
-      }));
-    }
-
-    this.successMessage = "Registro efetuado com sucesso! Redirecionando...";
-    this.errorMessage = "";
-
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    this.$router.push("/dashboard");
-  } catch (error) {
-    this.errorMessage =
-      error.response?.data?.message ||
-      "Erro ao registrar. Verifique os dados e tente novamente.";
-    this.successMessage = "";
-  }
-},
-
-   
+    },
   },
 };
 </script>

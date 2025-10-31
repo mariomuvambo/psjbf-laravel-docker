@@ -222,7 +222,7 @@ const openMobileMenu = ref(null)
 const userData = JSON.parse(localStorage.getItem('user')) || {}
 const user = reactive({
   name: userData?.nome || 'Usuário',
-  photo: userData?.photo || '/default-user.png', // ✅ usa a URL pública
+  photo: userData?.foto || '/default-user.png', // ✅ usa a URL pública
   role: userData?.role || '',
 })
 
