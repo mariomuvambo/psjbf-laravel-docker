@@ -34,10 +34,7 @@
                   :alt="`Imagem de ${user.nome}`"
                   class="profile-pic"
                
-                />
-                   <p>{{ user.foto_url }}</p>
-
-                
+                />                
               </div>
 
               <!-- User Info & Actions -->

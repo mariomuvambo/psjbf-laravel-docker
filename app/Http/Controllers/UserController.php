@@ -25,7 +25,7 @@ class UserController extends Controller
             ->get();
 
         // 🔹 Processo ativo (batismo ou casamento)
-        $batismo = Batismo::where('user_id', $user->id)->latest()->first();
+        $batismo = Batismo::where('user_id', $user->id)->latest()->first(); 
         $casamento = Casamento::where('user_id', $user->id)->latest()->first();
 
         $processo = $batismo ?? $casamento;
