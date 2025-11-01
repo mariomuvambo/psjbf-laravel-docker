@@ -99,7 +99,7 @@ class ProfiluserController extends Controller
      */
     public function update(Request $request, Profiluser $profiluser)
     {
-        $validated = $request->validate([
+        $validated = $request->validate([ 
             'name' => 'nullable|string|max:255',
             'surname' => 'nullable|string|max:255',
             'date_birth' => 'nullable|date',

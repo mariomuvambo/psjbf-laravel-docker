@@ -10,14 +10,14 @@ use App\Models\Casamento;
 
 class UserController extends Controller
 {
-    //
-
-   public function userData(Request $request)
+    public function userData(Request $request)
     {
         $user = $request->user();
 
         // 🔹 Doações do usuário
-        $doacoes = Doacao::where('user_id', $user->id)->latest()->get();
+        $doacoes = Doacao::where('user_id', $user->id)
+            ->latest()
+            ->get();
 
         // 🔹 Ministérios do usuário
         $ministerios = UserMinister::with('regMinister')
@@ -25,13 +25,12 @@ class UserController extends Controller
             ->get();
 
         // 🔹 Processo ativo (batismo ou casamento)
-        $batismo = Batismo::where('user_id', $user->id)->latest()->first(); 
+        $batismo = Batismo::where('user_id', $user->id)->latest()->first();
         $casamento = Casamento::where('user_id', $user->id)->latest()->first();
-
         $processo = $batismo ?? $casamento;
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->makeHidden(['password', 'remember_token']),
             'doacoes' => $doacoes,
             'ministerios' => $ministerios,
             'processo' => $processo,
