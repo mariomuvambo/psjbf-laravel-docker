@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class UserMinister extends Model
 {
     use HasFactory;
-
+    
     protected $fillable = [
         'reg_minister_id',
         'user_id',
