@@ -17,20 +17,28 @@
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <!-- Foto do Usuário -->
             <img
-              :src="user.foto_url || 'https://dummyimage.com/150x150/ccc/fff&text=Foto'"
+              :src="getFoto(user)"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
-              
             />
-              <p>{{ user.foto_url }}</p>
             <div class="text-center text-md-start">
               <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
-              <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
-              <p class="mb-1" v-if="user.telefone"><i class="fas fa-phone me-2"></i>{{ user.telefone }}</p>
-              <p class="mb-1" v-if="user.endereco"><i class="fas fa-map-marker-alt me-2"></i>{{ user.endereco }}</p>
-              <p class="mb-1" v-if="user.genero"><i class="fas fa-venus-mars me-2"></i>{{ user.genero }}</p>
-              <p class="mb-3" v-if="user.data_nascimento"><i class="fas fa-birthday-cake me-2"></i>{{ formatDate(user.data_nascimento) }}</p>
+              <p class="text-muted mb-1">
+                <i class="fas fa-envelope me-2"></i>{{ user.email }}
+              </p>
+              <p v-if="user.telefone" class="mb-1">
+                <i class="fas fa-phone me-2"></i>{{ user.telefone }}
+              </p>
+              <p v-if="user.endereco" class="mb-1">
+                <i class="fas fa-map-marker-alt me-2"></i>{{ user.endereco }}
+              </p>
+              <p v-if="user.genero" class="mb-1">
+                <i class="fas fa-venus-mars me-2"></i>{{ user.genero }}
+              </p>
+              <p v-if="user.data_nascimento" class="mb-3">
+                <i class="fas fa-birthday-cake me-2"></i>{{ formatDate(user.data_nascimento) }}
+              </p>
               <span class="badge bg-primary text-uppercase px-3 py-2">{{ user.tipo_usuario }}</span>
             </div>
           </div>
@@ -67,7 +75,9 @@
               <strong>Data da Cerimônia:</strong>
               {{ formatDate(processo.data_cerimonia) }}
             </p>
-            <p class="text-muted small mb-0">Você será notificado sempre que o status for atualizado.</p>
+            <p class="text-muted small mb-0">
+              Você será notificado sempre que o status for atualizado.
+            </p>
           </div>
         </div>
 
@@ -148,32 +158,40 @@ const user = ref({})
 const doacoes = ref([])
 const ministerios = ref([])
 const processo = ref(null)
+const loading = ref(true)
 
+// ✅ Função que formata datas
 const formatDate = (dateStr) => {
   if (!dateStr) return '-'
   const options = { year: 'numeric', month: 'short', day: 'numeric' }
   return new Date(dateStr).toLocaleDateString('pt-PT', options)
 }
 
+// ✅ Função que resolve a foto do usuário (S3, local ou dummy)
+const getFoto = (u) => {
+  if (!u) return 'https://dummyimage.com/150x150/ccc/fff&text=Foto'
+  if (u.foto_url) return u.foto_url
+  if (u.foto)
+    return `${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${u.foto}`
+  return 'https://dummyimage.com/150x150/ccc/fff&text=Foto'
+}
+
+// ✅ Carrega dados do usuário
 onMounted(async () => {
   try {
-    const res = await axios.get('/user', {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem('token')}`
-      }
-    })
-
-    user.value = res.data.user
-    doacoes.value = res.data.doacoes
-    ministerios.value = res.data.ministerios
-    processo.value = res.data.processo
-
+    const res = await axios.get('/user')
+    console.log('📦 Dados recebidos do /user:', res.data)
+    user.value = res.data.user || {}
+    doacoes.value = res.data.doacoes || []
+    ministerios.value = res.data.ministerios || []
+    processo.value = res.data.processo || null
   } catch (error) {
-    console.error('Erro ao carregar dados:', error)
+    console.error('❌ Erro ao carregar dados:', error.response || error)
+  } finally {
+    loading.value = false
   }
 })
 </script>
-
 
 <style scoped>
 h2 {
@@ -202,5 +220,4 @@ h2 {
   padding: 1.5rem;
   font-size: 1rem;
 }
-
 </style>
