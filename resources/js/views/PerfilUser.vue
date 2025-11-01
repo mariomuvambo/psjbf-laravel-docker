@@ -17,11 +17,13 @@
           <div class="card-body d-flex flex-column flex-md-row align-items-center">
             <!-- Foto do Usuário -->
             <img
-              :src="user.foto_url || 'https://via.placeholder.com/150'"
+              :src="user.foto_url || 'https://dummyimage.com/150x150/ccc/fff&text=Foto'"
               alt="Foto do Usuário"
               class="rounded-circle shadow-sm me-4 mb-4 mb-md-0"
               style="width: 150px; height: 150px; object-fit: cover;"
+              
             />
+              <p>{{ user.foto_url }}</p>
             <div class="text-center text-md-start">
               <h3 class="fw-bold mb-2 text-primary">{{ user.nome }} {{ user.apelido }}</h3>
               <p class="text-muted mb-1"><i class="fas fa-envelope me-2"></i>{{ user.email }}</p>
