@@ -29,8 +29,12 @@ class UserController extends Controller
         $casamento = Casamento::where('user_id', $user->id)->latest()->first();
         $processo = $batismo ?? $casamento;
 
+        // 🔹 Garante que o campo foto_url venha do Accessor do model User
+        $user->makeHidden(['password', 'remember_token']);
+        $user->append('foto_url');
+
         return response()->json([
-            'user' => $user->makeHidden(['password', 'remember_token']),
+            'user' => $user,
             'doacoes' => $doacoes,
             'ministerios' => $ministerios,
             'processo' => $processo,

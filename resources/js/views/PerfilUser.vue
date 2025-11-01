@@ -176,6 +176,7 @@ const getFoto = (u) => {
   return 'https://dummyimage.com/150x150/ccc/fff&text=Foto'
 }
 
+
 // ✅ Carrega dados do usuário
 onMounted(async () => {
   try {
@@ -186,11 +187,12 @@ onMounted(async () => {
     ministerios.value = res.data.ministerios || []
     processo.value = res.data.processo || null
   } catch (error) {
-    console.error('❌ Erro ao carregar dados:', error.response || error)
+    console.error('❌ Erro ao carregar dados:', error)
   } finally {
     loading.value = false
   }
 })
+
 </script>
 
 <style scoped>
