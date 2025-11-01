@@ -33,10 +33,13 @@ class UserController extends Controller
                 ->where('user_id', $user->id)
                 ->get();
 
-            // 🔹 Processo ativo (batismo ou casamento)
-            $batismo = Batismo::where('user_id', $user->id)->latest()->first();
-            $casamento = Casamento::where('user_id', $user->id)->latest()->first();
-            $processo = $batismo ?? $casamento;
+            // 🔹 Processo ativo (batismo ou casamento) — pega o mais recente
+            $processos = collect([
+                Batismo::where('user_id', $user->id)->latest()->first(),
+                Casamento::where('user_id', $user->id)->latest()->first()
+            ])->filter(); // remove nulls
+
+            $processo = $processos->sortByDesc(fn($p) => $p->created_at)->first();
 
             // 🔹 Oculta dados sensíveis e adiciona foto_url
             $user->makeHidden(['password', 'remember_token']);
@@ -52,7 +55,7 @@ class UserController extends Controller
         } catch (\Throwable $e) {
             // 📜 Loga o erro completo para depuração
             Log::error('Erro no /api/user: '.$e->getMessage().' em '.$e->getFile().':'.$e->getLine());
-            
+
             return response()->json([
                 'error' => 'Erro interno no servidor',
                 'details' => $e->getMessage()
