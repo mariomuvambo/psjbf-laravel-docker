@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\regMinister;
 use Illuminate\Http\Request;
 
-class regMinisterController extends Controller
+class RegMinisterController extends Controller
 {
     /**
      * Display a listing of the resource.

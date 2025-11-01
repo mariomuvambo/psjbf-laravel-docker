@@ -92,7 +92,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Comentario::class, 'aniversariante_id');
     }
-    public function userMinisters()
+    public function userMinisters() 
     {
         return $this->hasMany(UserMinister::class);
     }

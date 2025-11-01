@@ -10,8 +10,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\ProfiluserController;
 use App\Http\Controllers\AvisoController;
-use App\Http\Controllers\regMinisterController;
-use App\Http\Controllers\userMinisterController;
+use App\Http\Controllers\RegMinisterController;
+use App\Http\Controllers\UserMinisterController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\DoacaoController;
 use App\Http\Controllers\AniversarianteController;
@@ -172,8 +172,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/estatisticas-avisos', [AvisoController::class, 'estatisticas']);
 
     // ✝ Ministérios
-    Route::apiResource('reg_ministers', regMinisterController::class);
-    Route::apiResource('user_ministers', userMinisterController::class);
+    Route::apiResource('reg_ministers', RegMinisterController::class);
+    Route::apiResource('user_ministers', UserMinisterController::class);
     Route::get('/meus_ministerios', [UserMinisterController::class, 'myMinisters']);
 
 
