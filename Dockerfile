@@ -9,7 +9,7 @@ COPY package*.json vite.config.js ./
 ARG VITE_API_URL
 ENV VITE_API_URL=${VITE_API_URL}
 
-# Copiar código e compilar build do Vite
+# Copiar o frontend e compilar
 COPY resources ./resources
 COPY public ./public
 RUN npm install && npm run build
@@ -20,51 +20,45 @@ RUN npm install && npm run build
 # ==========================
 FROM php:8.2-fpm
 
-# Instalar dependências do sistema e extensões PHP
+# Instalar dependências do sistema
 RUN apt-get update && apt-get install -y \
     git curl zip unzip libpq-dev libpng-dev libonig-dev libxml2-dev libzip-dev \
     && docker-php-ext-install pdo_pgsql pgsql mbstring bcmath gd zip \
     && docker-php-ext-enable pdo_pgsql pgsql
 
-# Configurações de upload e memória
+# Ajustes de upload e memória
 RUN echo "upload_max_filesize=10M" > /usr/local/etc/php/conf.d/uploads.ini && \
-    echo "post_max_size=10M" >> /usr/local/etc/php/conf.d/uploads.ini && \
-    echo "memory_limit=512M" > /usr/local/etc/php/conf.d/memory.ini
+    echo "post_max_size=10M" >> /usr/local/etc/php/conf.d/uploads.ini
 
-# Diretório de trabalho
+# Definir diretório de trabalho
 WORKDIR /var/www/html
 
 # Copiar código da aplicação
 COPY . .
 
-# Copiar build do frontend para o Laravel
+# Copiar build do frontend
 COPY --from=build-frontend /app/public/build ./public/build
 
-# ==========================
-# 🔹 DEPENDÊNCIAS LARAVEL
-# ==========================
-# Instalar Composer e dependências otimizadas
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-    && composer clear-cache \
-    && composer install --no-dev --optimize-autoloader --no-interaction
+# Instalar Composer e dependências do Laravel
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# ==========================
-# 🔹 AJUSTES DE PERMISSÕES E CACHE
-# ==========================
-RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache && \
-    chown -R www-data:www-data storage bootstrap/cache && \
-    php artisan storage:link || true && \
-    php artisan key:generate || true && \
-    composer dump-autoload -o && \
-    php artisan optimize:clear && \
-    php artisan config:cache && \
-    php artisan route:cache
+# Criar storage e permissões
+RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache \
+    && php artisan storage:link || true \
+    && chown -R www-data:www-data storage bootstrap/cache
 
-# Expor porta padrão HTTP
+# Gerar chave da aplicação (ignorar se já existir)
+RUN php artisan key:generate || true
+
+# Expor porta HTTP
 EXPOSE 8000
 
 # ==========================
-# 🔹 ENTRYPOINT PADRÃO (para Render/Docker Compose)
+# 🔹 ENTRYPOINT PADRÃO (usado pelo serviço web)
 # ==========================
-CMD php artisan migrate --force || true && \
+CMD php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan config:cache && \
+    php artisan migrate --force || true && \
     php artisan serve --host=0.0.0.0 --port=${PORT:-8000}
