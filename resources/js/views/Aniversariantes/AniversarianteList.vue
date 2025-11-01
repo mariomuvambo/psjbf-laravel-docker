@@ -30,10 +30,14 @@
               <!-- Profile Image -->
               <div class="photo-wrapper p-3">
                 <img
-                  :src="user.foto_url"
+                  :src="getFoto(user)"
                   :alt="`Imagem de ${user.nome}`"
                   class="profile-pic"
+               
                 />
+                   <p>{{ user.foto_url }}</p>
+
+                
               </div>
 
               <!-- User Info & Actions -->
@@ -107,6 +111,7 @@ export default {
         headers: { Authorization: `Bearer ${this.getToken()}` }
       })
       .then(response => {
+         console.log(response.data)
         this.aniversariantes = response.data.map(user => ({
           ...user,
           showCommentBox: false,
@@ -120,6 +125,13 @@ export default {
     formatDate(date) {
       return new Date(date).toLocaleDateString('pt-BR');
     },
+    getFoto(user) {
+  if (user.foto_url) {
+    return user.foto_url
+  } else {
+    return 'https://via.placeholder.com/100'
+  }
+},
     getImageUrl(path) {
       return path ? `http://localhost:8000/storage/${path}` : 'https://via.placeholder.com/100';
     }, 

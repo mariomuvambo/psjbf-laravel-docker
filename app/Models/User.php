@@ -56,22 +56,12 @@ class User extends Authenticatable
     ];
     protected $appends = ['foto_url'];
 
-    public function getFotoUrlAttribute()
-    {
-        if (!$this->foto) {
-            return null;
-        }
-
-        // se já for URL completa (começa com http), retorna direto
-        if (str_starts_with($this->foto, 'http')) {
-            return $this->foto;
-        }
-
-        // caso contrário, assume que é um path no bucket e gera URL via disk s3
-        return Storage::disk(config('filesystems.default') ?: 's3')->url($this->foto);
-    }
-
-
+   public function getFotoUrlAttribute()
+{
+    if (!$this->foto) return null;
+    if (str_starts_with($this->foto, 'http')) return $this->foto;
+    return Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(10));
+}
 
     // Relacionamento Many-to-Many com Aviso
     public function avisosLidos()
