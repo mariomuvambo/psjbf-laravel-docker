@@ -299,7 +299,7 @@ const fetchOracoes = async () => {
   } catch (e) {
     console.warn('Erro ao buscar orações', e)
   }
-}
+} 
 
 const fetchAvisos = async () => {
   try {
