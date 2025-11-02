@@ -8,14 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class RegMinister extends Model
 {
     use HasFactory;
+   
     protected $fillable = [
         'newMinister',
-        'finally',
+        'description',   
         'responseMinister',
         'responseAdjunto',
         'SectorGeral',
         'SectorMinister',
     ];
+
 
     // Relacionamento com UserMinister
     public function userMinisters()

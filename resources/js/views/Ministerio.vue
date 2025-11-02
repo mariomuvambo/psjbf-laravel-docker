@@ -1,11 +1,10 @@
 <template>
   <div class="d-flex flex-column flex-lg-row min-vh-100">
-    <!-- Sidebar - Desktop -->
+    <!-- Sidebar Desktop -->
     <div class="d-none d-lg-block flex-shrink-0">
       <SidebarDashboard />
     </div>
 
-    <!-- Conteúdo Principal -->
     <main class="flex-grow-1">
       <NavDashboard />
 
@@ -21,7 +20,7 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Descrição</label>
-                  <input v-model="form.finally" type="text" class="form-control" required />
+                  <input v-model="form.description" type="text" class="form-control" />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Responsável</label>
@@ -40,6 +39,7 @@
                   <input v-model="form.SectorMinister" type="text" class="form-control" required />
                 </div>
               </div>
+
               <div class="text-end mt-4">
                 <button class="btn btn-maroon fw-bold px-4" type="submit">
                   {{ form.id ? 'Atualizar' : 'Registrar' }} Ministério
@@ -66,7 +66,7 @@
             <tbody>
               <tr v-for="min in ministers" :key="min.id">
                 <td>{{ min.newMinister }}</td>
-                <td>{{ min.finally }}</td>
+                <td>{{ min.description }}</td>
                 <td>{{ min.responseMinister }}</td>
                 <td>{{ min.responseAdjunto }}</td>
                 <td>{{ min.SectorGeral }}</td>
@@ -86,7 +86,7 @@
       </div>
     </main>
 
-    <!-- Sidebar - Mobile -->
+    <!-- Sidebar Mobile -->
     <div class="d-block d-lg-none flex-shrink-0">
       <SidebarDashboard />
     </div>
@@ -106,7 +106,7 @@ export default {
       form: {
         id: null,
         newMinister: '',
-        finally: '',
+        description: '',
         responseMinister: '',
         responseAdjunto: '',
         SectorGeral: '',
@@ -117,41 +117,45 @@ export default {
   methods: {
     async fetchMinisters() {
       try {
-        const response = await axios.get('/reg_ministers')
-        this.ministers = response.data
-      } catch (error) {
-        console.error('Erro ao buscar ministros:', error)
+        const { data } = await axios.get('/reg_ministers')
+        this.ministers = data
+      } catch (err) {
+        console.error('Erro ao buscar ministros:', err)
       }
     },
     async saveMinister() {
       try {
         if (this.form.id) {
           await axios.put(`/reg_ministers/${this.form.id}`, this.form)
+          alert('Ministério atualizado com sucesso!')
         } else {
           await axios.post('/reg_ministers', this.form)
+          alert('Ministério registrado com sucesso!')
         }
         this.fetchMinisters()
         this.resetForm()
-      } catch (error) {
-        console.error('Erro ao salvar ministro:', error)
+      } catch (err) {
+        console.error('Erro ao salvar ministro:', err)
       }
     },
     editMinister(minister) {
-      this.form = { ...minister } 
+      this.form = { ...minister }
     },
     async deleteMinister(id) {
+      if (!confirm('Deseja realmente excluir este ministério?')) return
       try {
         await axios.delete(`/reg_ministers/${id}`)
         this.fetchMinisters()
-      } catch (error) {
-        console.error('Erro ao deletar ministro:', error)
+        alert('Ministério removido.')
+      } catch (err) {
+        console.error('Erro ao deletar ministro:', err)
       }
     },
     resetForm() {
       this.form = {
         id: null,
         newMinister: '',
-        finally: '',
+        description: '',
         responseMinister: '',
         responseAdjunto: '',
         SectorGeral: '',

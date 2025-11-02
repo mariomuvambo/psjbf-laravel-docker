@@ -6,31 +6,21 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up()
+    public function up(): void
     {
         Schema::create('reg_ministers', function (Blueprint $table) {
             $table->id();
             $table->string('newMinister');
-            $table->text('finally');
-            $table->text('responseMinister');
-            $table->text('responseAdjunto');
-            $table->text('SectorGeral');
-            $table->text('SectorMinister');
+            $table->text('description')->nullable(); // ✅ renomeado de "finally"
+            $table->string('responseMinister');
+            $table->string('responseAdjunto');
+            $table->string('SectorGeral');
+            $table->string('SectorMinister');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('reg_ministers');
     }

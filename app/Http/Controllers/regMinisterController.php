@@ -2,118 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\regMinister;
+use App\Models\RegMinister;
 use Illuminate\Http\Request;
 
 class RegMinisterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    // ✅ Listar todos os ministros
     public function index()
     {
-        //
-        $ministers = RegMinister::all();
-
-        // Retorna os dados dos ministros em formato JSON
-        return response()->json($ministers);
+        return response()->json(RegMinister::all());
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    // ✅ Criar novo ministro
     public function store(Request $request)
     {
-        //
-        $request->validate([
+        $validated = $request->validate([
             'newMinister' => 'required|string|max:255',
-            'finally' => 'required|string',
-            'responseMinister' => 'required|string',
-            'responseAdjunto' => 'required|string',
-            'SectorGeral' => 'required|string',
-            'SectorMinister' => 'required|string',
+            'description' => 'nullable|string',
+            'responseMinister' => 'required|string|max:255',
+            'responseAdjunto' => 'required|string|max:255',
+            'SectorGeral' => 'required|string|max:255',
+            'SectorMinister' => 'required|string|max:255',
         ]);
 
-        $regMinister = RegMinister::create($request->all());
+        $minister = RegMinister::create($validated);
 
-        return response()->json($regMinister, 201);
-          
+        return response()->json([
+            'message' => 'Ministério registrado com sucesso.',
+            'data' => $minister
+        ], 201);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // ✅ Exibir ministro específico
     public function show($id)
     {
-        $regMinister = RegMinister::findOrFail($id);
-        return response()->json($regMinister);
+        $minister = RegMinister::findOrFail($id);
+        return response()->json($minister);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // ✅ Atualizar ministro existente
     public function update(Request $request, $id)
     {
-        $regMinister = RegMinister::findOrFail($id);
+        $minister = RegMinister::findOrFail($id);
 
-        $request->validate([
+        $validated = $request->validate([
             'newMinister' => 'sometimes|string|max:255',
-            'finally' => 'sometimes|string',
-            'responseMinister' => 'sometimes|string',
-            'responseAdjunto' => 'sometimes|string',
-            'SectorGeral' => 'sometimes|string',
-            'SectorMinister' => 'sometimes|string',
+            'description' => 'sometimes|string|nullable',
+            'responseMinister' => 'sometimes|string|max:255',
+            'responseAdjunto' => 'sometimes|string|max:255',
+            'SectorGeral' => 'sometimes|string|max:255',
+            'SectorMinister' => 'sometimes|string|max:255',
         ]);
 
-        $regMinister->update($request->all());
+        $minister->update($validated);
 
-        return response()->json($regMinister);
+        return response()->json([
+            'message' => 'Ministério atualizado com sucesso.',
+            'data' => $minister
+        ]);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    // ✅ Remover ministro
     public function destroy($id)
     {
-        $regMinister = RegMinister::findOrFail($id);
-        $regMinister->delete();
+        $minister = RegMinister::findOrFail($id);
+        $minister->delete();
 
-        return response()->json(['message' => 'Registro deletado com sucesso.']);
+        return response()->json(['message' => 'Ministério excluído com sucesso.']);
     }
 }
