@@ -137,7 +137,7 @@ export default {
       }
     },
     editMinister(minister) {
-      this.form = { ...minister }
+      this.form = { ...minister } 
     },
     async deleteMinister(id) {
       try {
