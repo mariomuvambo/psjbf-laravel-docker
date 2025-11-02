@@ -79,7 +79,8 @@
             <tbody>
               <tr v-for="(event, i) in eventosPaginados" :key="i">
                 <td>
-                  <img :src="`/storage/events/${event.image}`" alt="Imagem do Evento" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover" />
+                  <img :src="event.image_url" alt="Imagem do Evento" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover" />
+
                 </td>
                 <td>{{ event.title }}</td>
                 <td>{{ formatDate(event.date) }}</td>

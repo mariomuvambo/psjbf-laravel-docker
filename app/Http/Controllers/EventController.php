@@ -36,44 +36,44 @@ class EventController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
- public function store(Request $request)
-{
-    // Verifica se já existe evento na mesma data
-    $existingEvent = Event::whereDate('date', $request->date)->count();
-    if ($existingEvent > 0) {
-        // Se já houver evento na mesma data, retorna mensagem de erro
+
+    public function store(Request $request)
+    {
+        // Evita eventos duplicados na mesma data
+        if (Event::whereDate('date', $request->date)->exists()) {
+            return response()->json([
+                'message' => '❌ Já existe um evento nesta data. Escolha outra data.'
+            ], 400);
+        }
+
+        // Validação
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'date' => 'required|date',
+            'time' => 'required',
+            'location' => 'required|string|max:255',
+            'description' => 'required|string',
+            'image' => 'required|image|max:2048',
+        ]);
+
+        // 📸 Upload da imagem no Cloudflare R2
+        $path = $request->file('image')->store('eventos', 's3'); // "eventos" é a pasta no bucket
+
+        // Criar evento
+        $event = Event::create([
+            'title' => $request->title,
+            'date' => $request->date,
+            'time' => $request->time,
+            'location' => $request->location,
+            'description' => $request->description,
+            'image' => $path,
+        ]);
+
         return response()->json([
-            'message' => '❌ Já existe um evento nesta data. Por favor, escolha outra data.'
-        ], 400);  // Código HTTP 400 para erro de validação
+            'message' => '✅ Evento criado com sucesso!',
+            'event' => $event
+        ], 201);
     }
-
-    // Validação dos dados de entrada
-    $request->validate([
-        'title' => 'required|string',
-        'date' => 'required|date',
-        'time' => 'required',
-        'location' => 'required|string',
-        'description' => 'required|string',
-        'image' => 'required|image|max:2048',
-    ]);
-
-    // Salvar imagem na pasta storage/app/public/events
-    $image = $request->file('image');
-    $imageName = $image->hashName(); // nome único
-    $image->storeAs('public/events', $imageName); // armazenamento correto
-
-    // Criar evento
-    $event = Event::create([
-        'title' => $request->title,
-        'date' => $request->date,
-        'time' => $request->time,
-        'location' => $request->location,
-        'description' => $request->description,
-        'image' => $imageName, // apenas o nome
-    ]);
-
-    return response()->json($event, 201);  // Retorna o evento criado com sucesso
-}
 
 
 
@@ -110,47 +110,41 @@ class EventController extends Controller
      * @param  \App\Models\Event  $event
      * @return \Illuminate\Http\Response
      */
-  
 
-public function update(Request $request, $id)
+    public function update(Request $request, $id)
 {
     $event = Event::findOrFail($id);
 
     $request->validate([
-        'title' => 'required|string',
+        'title' => 'required|string|max:255',
         'date' => 'required|date',
         'time' => 'required',
-        'location' => 'required|string',
+        'location' => 'required|string|max:255',
         'description' => 'required|string',
         'image' => 'nullable|image|max:2048',
     ]);
 
-    // Atualiza campos básicos
-    $event->title = $request->title;
-    $event->date = $request->date;
-    $event->time = $request->time;
-    $event->location = $request->location;
-    $event->description = $request->description;
+    $event->fill($request->only(['title', 'date', 'time', 'location', 'description']));
 
-    // Se nova imagem for enviada
     if ($request->hasFile('image')) {
-        // Deleta imagem antiga, se existir
-        if ($event->image && Storage::disk('public')->exists("events/{$event->image}")) {
-            Storage::disk('public')->delete("events/{$event->image}");
+        // Exclui a imagem antiga (opcional)
+        if ($event->image && Storage::disk('s3')->exists($event->image)) {
+            Storage::disk('s3')->delete($event->image);
         }
 
-        // Salva nova imagem
-        $image = $request->file('image');
-        $imageName = $image->hashName();
-        $image->storeAs('public/events', $imageName);
-
-        $event->image = $imageName;
+        // 📸 Envia nova imagem para R2
+        $event->image = $request->file('image')->store('eventos', 's3');
     }
 
     $event->save();
 
-    return response()->json($event);
+    return response()->json([
+        'message' => '✅ Evento atualizado com sucesso!',
+        'event' => $event
+    ]);
 }
+
+
 
 
     /**

@@ -12,4 +12,13 @@ class Event extends Model
     protected $fillable = [
         'title', 'date', 'time', 'location', 'description', 'image'
     ];
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image
+            ? Storage::disk('s3')->url($this->image)
+            : null;
+    }
 }

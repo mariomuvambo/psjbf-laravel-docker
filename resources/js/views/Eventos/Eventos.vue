@@ -19,10 +19,11 @@
           >
             <div class="event-card shadow-sm text-center w-100">
               <img
-                :src="getImageUrl(event.image)"
-                :alt="`Imagem de ${event.title}`"
-                class="event-image"
-              />
+              :src="event.image_url || 'https://via.placeholder.com/300x200?text=Evento'"
+              :alt="`Imagem de ${event.title}`"
+              class="event-image"
+            />
+
               <h5 class="fw-bold mt-3 text-maroon">{{ event.title }}</h5>
               <p class="date">📅 {{ formatDate(event.date) }} ⏰ {{ event.time }}</p>
               <p class="location">📍 {{ event.location }}</p>
