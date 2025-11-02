@@ -23,7 +23,7 @@
 
         <!-- Lista de eventos -->
         <section
-          v-else-if="events.length"
+          v-else-if="uniqueEvents.length"
           class="row gx-4 gy-4 justify-content-center"
         >
           <div
@@ -33,9 +33,10 @@
           >
             <div class="event-card shadow-sm text-center w-100">
               <img
-                :src="event.image_url || placeholder"
+                :src="getImageUrl(event.image_url)"
                 :alt="`Imagem de ${event.title}`"
                 class="event-image"
+                @error="handleImageError"
               />
               <h5 class="fw-bold mt-3 text-maroon">{{ event.title }}</h5>
               <p class="date">
@@ -74,6 +75,7 @@ export default {
       events: [],
       loading: true,
       placeholder: "/img/placeholder-evento.jpg",
+      apiUrl: import.meta.env.VITE_API_URL || "http://127.0.0.1:8000/api",
     };
   },
   computed: {
@@ -86,22 +88,40 @@ export default {
   },
   methods: {
     async fetchEvents() {
-  try {
-    const url = `${import.meta.env.VITE_API_URL}/events`;
-    console.log("🔗 URL chamada:", url);
+      try {
+        const url = `${this.apiUrl}/events`;
+        console.log("🔗 URL chamada:", url);
 
-    const { data } = await axios.get(url);
-    console.log("✅ Eventos carregados:", data);
+        const { data } = await axios.get(url);
+        console.log("✅ Eventos carregados:", data);
 
-    this.events = Array.isArray(data) ? data : [];
-    console.log("📦 Eventos atribuídos:", this.events.length);
-  } catch (error) {
-    console.error("❌ Erro ao buscar eventos:", error);
-  } finally {
-    this.loading = false;
-  }
-}
-,
+        this.events = Array.isArray(data) ? data : [];
+        console.log("📦 Eventos atribuídos:", this.events.length);
+      } catch (error) {
+        console.error("❌ Erro ao buscar eventos:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    // 🔗 Gera URL completa da imagem
+    getImageUrl(imagePath) {
+      if (!imagePath) return this.placeholder;
+
+      // Se a imagem já é uma URL completa (começa com http), retorna direto
+      if (imagePath.startsWith("http")) return imagePath;
+
+      // Caso contrário, gera o link completo
+      const base = this.apiUrl.replace("/api", "");
+      return `${base}/storage/${imagePath}`;
+    },
+
+    // Substitui imagem quebrada pelo placeholder
+    handleImageError(event) {
+      event.target.src = this.placeholder;
+    },
+
+    // Formata datas
     formatDate(dateStr) {
       if (!dateStr) return "";
       const date = new Date(dateStr);
