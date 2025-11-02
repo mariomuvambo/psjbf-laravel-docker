@@ -137,6 +137,7 @@ Route::get('/db-test', function () {
 });
 
 
+Route::get('/events', [EventController::class, 'index']);
 
 // Rotas protegidas
 Route::middleware('auth:sanctum')->group(function () {
@@ -178,7 +179,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     // Eventos e Doações
-    Route::apiResource('events', EventController::class);
+    // Route::apiResource('events', EventController::class);
+    Route::post('/events', [EventController::class, 'store']);
+    Route::get('/events/{event}', [EventController::class, 'show']);
+    Route::put('/events/{event}', [EventController::class, 'update']);
+    Route::delete('/events/{event}', [EventController::class, 'destroy']);
+
+
     Route::get('events-for-date', [EventController::class, 'eventsForDate']);
     Route::get('/events/monthly-stats', [EventController::class, 'getEventsOfCurrentMonth']);
     Route::apiResource('doacoes', DoacaoController::class);

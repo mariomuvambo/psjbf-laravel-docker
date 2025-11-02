@@ -14,11 +14,19 @@ class EventController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+public function __construct()
     {
-        //
-        return response()->json(Event::all());
+        // Remove autenticação para o index (listar eventos)
+        $this->middleware('auth:sanctum')->except(['index']);
     }
+
+   public function index()
+{
+    $events = Event::orderBy('date', 'asc')->get();
+
+    return response()->json($events);
+}
+
 
     /**
      * Show the form for creating a new resource.

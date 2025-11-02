@@ -1,91 +1,126 @@
 <template>
   <div class="d-flex flex-column flex-lg-row">
-    <!-- Sidebar - Desktop -->
-    <div class="d-none d-lg-block flex-shrink-0">
+    <!-- Sidebar Desktop -->
+    <aside class="d-none d-lg-block flex-shrink-0">
       <SidebarDashboard />
-    </div>
+    </aside>
 
     <!-- Conteúdo Principal -->
-    <main class="flex-grow-1 min-vh-100">
+    <main class="flex-grow-1 min-vh-100 bg-light">
       <NavDashboard />
 
-      <div class="container" style="margin-top: 120px;">
-        <!-- Lista de Eventos -->
-        <section class="row gx-4 gy-4 justify-content-center">
+      <div class="container mt-5 pt-5">
+        <h2 class="text-center fw-bold text-maroon mb-4">
+          Próximos Eventos
+        </h2>
+
+        <!-- Carregando -->
+        <div v-if="loading" class="text-center py-5">
+          <div class="spinner-border text-maroon" role="status">
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+        </div>
+
+        <!-- Lista de eventos -->
+        <section
+          v-else-if="events.length"
+          class="row gx-4 gy-4 justify-content-center"
+        >
           <div
-            v-for="(event, index) in events"
-            :key="index"
+            v-for="event in uniqueEvents"
+            :key="event.id"
             class="col-12 col-sm-6 col-lg-3 d-flex"
           >
             <div class="event-card shadow-sm text-center w-100">
               <img
-              :src="event.image_url || 'https://via.placeholder.com/300x200?text=Evento'"
-              :alt="`Imagem de ${event.title}`"
-              class="event-image"
-            />
-
+                :src="event.image_url || placeholder"
+                :alt="`Imagem de ${event.title}`"
+                class="event-image"
+              />
               <h5 class="fw-bold mt-3 text-maroon">{{ event.title }}</h5>
-              <p class="date">📅 {{ formatDate(event.date) }} ⏰ {{ event.time }}</p>
+              <p class="date">
+                📅 {{ formatDate(event.date) }} ⏰ {{ event.time }}
+              </p>
               <p class="location">📍 {{ event.location }}</p>
               <p class="description">{{ event.description }}</p>
             </div>
           </div>
         </section>
+
+        <!-- Nenhum evento -->
+        <div v-else class="text-center py-5 text-muted">
+          <i class="bi bi-calendar-x fs-1 d-block mb-3"></i>
+          Nenhum evento disponível no momento.
+        </div>
       </div>
     </main>
 
-    <!-- Sidebar - Mobile -->
-    <div class="d-block d-lg-none flex-shrink-0">
+    <!-- Sidebar Mobile -->
+    <aside class="d-block d-lg-none flex-shrink-0">
       <SidebarDashboard />
-    </div>
+    </aside>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import NavDashboard from '../../components/NavDashboard.vue';
-import SidebarDashboard from '../../components/SidebarDashboard.vue';
+import axios from "axios";
+import NavDashboard from "../../components/NavDashboard.vue";
+import SidebarDashboard from "../../components/SidebarDashboard.vue";
 
 export default {
   components: { NavDashboard, SidebarDashboard },
   data() {
     return {
-      events: []
+      events: [],
+      loading: true,
+      placeholder: "/img/placeholder-evento.jpg",
     };
   },
-  methods: {
-    fetchEvents() {
-      axios.get('/events')
-        .then(response => {
-          this.events = response.data;
-        })
-        .catch(error => {
-          console.error('Erro ao buscar eventos:', error);
-        });
+  computed: {
+    // Evita duplicação de eventos
+    uniqueEvents() {
+      const map = new Map();
+      this.events.forEach((e) => map.set(e.id, e));
+      return [...map.values()];
     },
+  },
+  methods: {
+    async fetchEvents() {
+  try {
+    const url = `${import.meta.env.VITE_API_URL}/events`;
+    console.log("🔗 URL chamada:", url);
+
+    const { data } = await axios.get(url);
+    console.log("✅ Eventos carregados:", data);
+
+    this.events = Array.isArray(data) ? data : [];
+    console.log("📦 Eventos atribuídos:", this.events.length);
+  } catch (error) {
+    console.error("❌ Erro ao buscar eventos:", error);
+  } finally {
+    this.loading = false;
+  }
+}
+,
     formatDate(dateStr) {
+      if (!dateStr) return "";
       const date = new Date(dateStr);
-      return date.toLocaleDateString('pt-PT', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric'
+      return date.toLocaleDateString("pt-PT", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
       });
     },
-    getImageUrl(filename) {
-      return filename
-        ? `http://localhost:8000/storage/events/${filename}`
-        : 'https://via.placeholder.com/300x200?text=Evento';
-    }
   },
   mounted() {
     this.fetchEvents();
-  }
+  },
 };
 </script>
 
 <style scoped>
 .text-maroon {
-  color: #8B0000;
+  color: #8b0000;
 }
 
 .event-card {
@@ -96,7 +131,6 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-between;
   transition: all 0.3s ease;
   border: 1px solid #e0e0e0;
 }
@@ -108,7 +142,7 @@ export default {
 
 .event-image {
   width: 100%;
-  max-height: 180px;
+  height: 180px;
   object-fit: cover;
   border-radius: 8px;
 }
