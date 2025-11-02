@@ -34,7 +34,7 @@
                   :alt="`Imagem de ${user.nome}`"
                   class="profile-pic"
                
-                />                
+                />            
               </div>
 
               <!-- User Info & Actions -->

@@ -66,7 +66,7 @@
             >
               <img
                 :src="user.photo"
-                alt="avatar"
+                alt="avatar" 
                 class="rounded-circle me-2"
                 width="32"
                 height="32"

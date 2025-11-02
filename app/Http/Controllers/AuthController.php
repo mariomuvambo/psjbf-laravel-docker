@@ -75,8 +75,8 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
-
-        if (!Auth::attempt($credentials)) {
+ 
+        if (!Auth::attempt($credentials)) { 
             return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 

@@ -58,23 +58,19 @@ class User extends Authenticatable
 
 public function getFotoUrlAttribute()
 {
-    if ($this->foto_s3) {
-        // Gera URL temporária de 5 minutos
-        return Storage::disk('s3')->temporaryUrl($this->foto_s3, now()->addMinutes(5));
+    if (!$this->foto) {
+        return null;
     }
-
-    if ($this->foto) {
-        return asset('storage/'.$this->foto); // fallback local
+    if (str_starts_with($this->foto, 'http')) {
+        return $this->foto;
     }
-
-    return 'https://dummyimage.com/150x150/ccc/fff&text=Foto';
+    return Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(10));
 }
-
 
 
     // Relacionamento Many-to-Many com Aviso
     public function avisosLidos()
-    {
+    { 
         return $this->belongsToMany(Aviso::class, 'aviso_user')->withTimestamps();
     }
 

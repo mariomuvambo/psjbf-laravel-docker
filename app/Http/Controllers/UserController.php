@@ -37,7 +37,7 @@ class UserController extends Controller
             $processos = collect([
                 Batismo::where('user_id', $user->id)->latest()->first(),
                 Casamento::where('user_id', $user->id)->latest()->first()
-            ])->filter(); // remove nulls
+            ])->filter(); // remove nulls 
 
             $processo = $processos->sortByDesc(fn($p) => $p->created_at)->first();
 
