@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex flex-column flex-lg-row min-vh-100" >
+  <div class="d-flex flex-column flex-lg-row min-vh-100">
     <!-- Sidebar - Desktop -->
     <div class="d-none d-lg-block flex-shrink-0">
       <SidebarDashboard />
@@ -72,8 +72,12 @@
                 <td>{{ min.SectorGeral }}</td>
                 <td>{{ min.SectorMinister }}</td>
                 <td class="text-center">
-                  <button class="btn btn-sm btn-warning me-2" @click="editMinister(min)"><i class="bi bi-pencil"></i></button>
-                  <button class="btn btn-sm btn-danger" @click="deleteMinister(min.id)"><i class="bi bi-trash"></i></button>
+                  <button class="btn btn-sm btn-warning me-2" @click="editMinister(min)">
+                    <i class="bi bi-pencil"></i>
+                  </button>
+                  <button class="btn btn-sm btn-danger" @click="deleteMinister(min.id)">
+                    <i class="bi bi-trash"></i>
+                  </button>
                 </td>
               </tr>
             </tbody>

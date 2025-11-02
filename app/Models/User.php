@@ -7,18 +7,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Support\Facades\Storage;
-
+use Illuminate\Support\Facades\Storage; // ✅ Import correto (no topo)
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable; // ✅ Traits corretos
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'nome',
         'apelido',
@@ -32,21 +26,11 @@ class User extends Authenticatable
         'password',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'data_nascimento' => 'date',
@@ -54,17 +38,23 @@ class User extends Authenticatable
         'data_crisma' => 'date',
         'data_ordem' => 'date',
     ];
+
     protected $appends = ['foto_url'];
 
-public function getFotoUrlAttribute()
-{
-    if ($this->foto && Storage::disk('s3')->exists($this->foto)) {
-        return Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(5));
+    // ✅ Método correto (sem "use Storage;" dentro da classe)
+    public function getFotoUrlAttribute()
+    {
+        if ($this->foto_s3) {
+            // Gera URL temporária de 5 minutos
+            return Storage::disk('s3')->temporaryUrl($this->foto_s3, now()->addMinutes(5));
+        }
+
+        if ($this->foto) {
+            return asset('storage/' . $this->foto); // fallback local
+        }
+
+        return 'https://dummyimage.com/150x150/ccc/fff&text=Foto';
     }
-
-    return $this->foto ? url("storage/{$this->foto}") : "https://dummyimage.com/150x150/ccc/fff&text=Foto";
-}
-
 
     // Relacionamento Many-to-Many com Aviso
     public function avisosLidos()
@@ -72,37 +62,33 @@ public function getFotoUrlAttribute()
         return $this->belongsToMany(Aviso::class, 'aviso_user')->withTimestamps();
     }
 
-    // Para saber quem curtiu (autor da curtida)
     public function curtidas()
     {
         return $this->hasMany(Gostos::class, 'user_id');
     }
 
-    // Para saber quem recebeu a curtida (aniversariante)
     public function curtidasRecebidas()
     {
         return $this->hasMany(Gostos::class, 'aniversariante_id');
     }
 
-    // Para saber quem comentou (autor do comentário) 
     public function comentarios()
     {
         return $this->hasMany(Comentario::class, 'user_id');
     }
 
-    // Para saber quem recebeu o comentário (aniversariante)
     public function comentariosRecebidos()
     {
         return $this->hasMany(Comentario::class, 'aniversariante_id');
     }
-    public function userMinisters() 
+
+    public function userMinisters()
     {
         return $this->hasMany(UserMinister::class);
     }
+
     public function processos()
     {
-        return $this->hasMany(Batismo::class); // ou Processo::class se o nome do modelo for diferente
+        return $this->hasMany(Batismo::class);
     }
-
- 
 }
