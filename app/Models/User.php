@@ -55,7 +55,6 @@ class User extends Authenticatable
         'data_ordem' => 'date',
     ];
     protected $appends = ['foto_url'];
-use Illuminate\Support\Facades\Storage;
 
 public function getFotoUrlAttribute()
 {
