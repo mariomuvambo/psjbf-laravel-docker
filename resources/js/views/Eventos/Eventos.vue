@@ -34,7 +34,7 @@
             <div class="event-card shadow-sm text-center w-100">
               <div class="image-wrapper">
                 <img
-                  :src="getImageUrl(event.image_url)"
+                  :src="getImageUrl(event.image_url || event.image)"
                   :alt="`Imagem de ${event.title}`"
                   class="event-image"
                   @error="handleImageError"
@@ -106,16 +106,17 @@ export default {
     },
 
     // 🧩 Corrige URL da imagem
-    getImageUrl(imagePath) {
-      if (!imagePath) return this.placeholder;
+   getImageUrl(imagePath) {
+  if (!imagePath) return this.placeholder;
 
-      if (imagePath.startsWith("http")) return imagePath;
+  // se o backend já enviou image_url completa, retorna diretamente
+  if (imagePath.startsWith("http")) return imagePath;
 
-      const base = this.apiUrl.replace("/api", "");
-      const fullPath = `${base}/storage/${imagePath}`;
-      console.log("🖼️ Caminho da imagem gerado:", fullPath);
-      return fullPath;
-    },
+  // senão, assume que é uma imagem local
+  const base = this.apiUrl.replace("/api", "");
+  return `${base}/storage/${imagePath}`;
+},
+
 
     handleImageError(event) {
       event.target.src = this.placeholder;
