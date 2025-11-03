@@ -39,13 +39,11 @@
           </select>
         </div>
 
-        
         <!-- Data de nascimento -->
         <div class="form-group">
           <label for="data_nascimento">Data de Nascimento</label>
           <input type="date" id="data_nascimento" v-model="form.data_nascimento" class="form-control" />
         </div>
-
 
         <!-- Foto -->
         <div class="form-group">
@@ -59,14 +57,19 @@
         </div>
 
         <!-- Botão e mensagens -->
-        <button type="submit" class="btn btn-primary w-100">Registrar</button>
+        <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+          <span v-if="!loading">Registrar</span>
+          <span v-else>
+            <i class="fa fa-spinner fa-spin"></i> Registando...
+          </span>
+        </button>
+
         <p v-if="successMessage" class="success">{{ successMessage }}</p>
         <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
       </form>
     </div>
   </div>
 </template>
-
 
 <script>
 import axios from "axios";
@@ -76,6 +79,7 @@ export default {
   components: { NavbarHome },
   data() {
     return {
+      loading: false,
       form: {
         nome: "",
         apelido: "",
@@ -98,9 +102,12 @@ export default {
       this.form.foto = event.target.files[0];
     },
     async register() {
+      this.loading = true;
+      this.successMessage = "";
+      this.errorMessage = "";
+
       try {
         const formData = new FormData();
-
         for (const key in this.form) {
           if (this.form[key] !== null) {
             formData.append(key, this.form[key]);
@@ -108,12 +115,11 @@ export default {
         }
 
         const response = await axios.post("/register", formData, {
-       headers: {
+          headers: {
             "Content-Type": "multipart/form-data",
             Accept: "application/json",
           },
         });
-
 
         if (response.data && response.data.token) {
           localStorage.setItem("token", response.data.token);
@@ -121,19 +127,14 @@ export default {
         }
 
         this.successMessage = "Registro efetuado com sucesso! Você será redirecionado em 3 segundos.";
-        this.errorMessage = "";
-
-        // Espera 3 segundos antes de redirecionar
         await new Promise(resolve => setTimeout(resolve, 3000));
-
         this.$router.push("/login");
-
       } catch (error) {
         this.errorMessage =
           error.response?.data?.message ||
           "Erro ao registrar. Verifique os dados e tente novamente.";
-
-          this.successMessage = "";
+      } finally {
+        this.loading = false;
       }
     },
   },
@@ -162,7 +163,7 @@ export default {
 
 .register-title {
   color: #8b0000;
-  font-family: 'Georgia', serif;
+  font-family: "Georgia", serif;
   font-size: 2.2rem;
   text-align: center;
   margin-bottom: 2rem;
@@ -218,6 +219,11 @@ export default {
   background-color: #600000;
 }
 
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
 .success {
   color: green;
   font-weight: bold;
@@ -237,6 +243,4 @@ export default {
     grid-template-columns: 1fr;
   }
 }
-
-
 </style>
