@@ -169,14 +169,12 @@ const formatDate = (dateStr) => {
 
 // ✅ Função que resolve a foto do usuário (S3, local ou dummy)
 const getFoto = (u) => {
-  if (!u) return 'https://dummyimage.com/150x150/ccc/fff&text=Foto'
-  if (u.foto_url) return u.foto_url
-  if (u.foto)
-    return `${import.meta.env.VITE_API_URL?.replace('/api', '')}/storage/${u.foto}`
-  return 'https://dummyimage.com/150x150/ccc/fff&text=Foto'
-}
+  if (!u) return 'https://dummyimage.com/150x150/ccc/fff&text=Foto';
+  if (u.foto_url) return u.foto_url; // Laravel já retorna a URL final
+  return 'https://dummyimage.com/150x150/ccc/fff&text=Foto';
+};
 
-
+ 
 // ✅ Carrega dados do usuário
 onMounted(async () => {
   try {

@@ -61,10 +61,19 @@ public function getFotoUrlAttribute()
     if (!$this->foto) {
         return null;
     }
+
+    // Se já é uma URL completa
     if (str_starts_with($this->foto, 'http')) {
         return $this->foto;
     }
-    return Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(10));
+
+    // Se usa o R2 (via S3 compatível)
+    try {
+        return \Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(10));
+    } catch (\Exception $e) {
+        // Se falhar (por exemplo em local), usa o storage público
+        return asset('storage/' . $this->foto);
+    }
 }
 
 
