@@ -32,12 +32,15 @@
             class="col-12 col-sm-6 col-lg-3 d-flex"
           >
             <div class="event-card shadow-sm text-center w-100">
-              <img
-                :src="getImageUrl(event.image_url)"
-                :alt="`Imagem de ${event.title}`"
-                class="event-image"
-                @error="handleImageError"
-              />
+              <div class="image-wrapper">
+                <img
+                  :src="getImageUrl(event.image_url)"
+                  :alt="`Imagem de ${event.title}`"
+                  class="event-image"
+                  @error="handleImageError"
+                />
+              </div>
+
               <h5 class="fw-bold mt-3 text-maroon">{{ event.title }}</h5>
               <p class="date">
                 📅 {{ formatDate(event.date) }} ⏰ {{ event.time }}
@@ -79,7 +82,6 @@ export default {
     };
   },
   computed: {
-    // Evita duplicação de eventos
     uniqueEvents() {
       const map = new Map();
       this.events.forEach((e) => map.set(e.id, e));
@@ -96,7 +98,6 @@ export default {
         console.log("✅ Eventos carregados:", data);
 
         this.events = Array.isArray(data) ? data : [];
-        console.log("📦 Eventos atribuídos:", this.events.length);
       } catch (error) {
         console.error("❌ Erro ao buscar eventos:", error);
       } finally {
@@ -104,24 +105,22 @@ export default {
       }
     },
 
-    // 🔗 Gera URL completa da imagem
+    // 🧩 Corrige URL da imagem
     getImageUrl(imagePath) {
       if (!imagePath) return this.placeholder;
 
-      // Se a imagem já é uma URL completa (começa com http), retorna direto
       if (imagePath.startsWith("http")) return imagePath;
 
-      // Caso contrário, gera o link completo
       const base = this.apiUrl.replace("/api", "");
-      return `${base}/storage/${imagePath}`;
+      const fullPath = `${base}/storage/${imagePath}`;
+      console.log("🖼️ Caminho da imagem gerado:", fullPath);
+      return fullPath;
     },
 
-    // Substitui imagem quebrada pelo placeholder
     handleImageError(event) {
       event.target.src = this.placeholder;
     },
 
-    // Formata datas
     formatDate(dateStr) {
       if (!dateStr) return "";
       const date = new Date(dateStr);
@@ -147,7 +146,6 @@ export default {
   background: #fff;
   border-radius: 10px;
   padding: 20px;
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -160,11 +158,18 @@ export default {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.event-image {
+.image-wrapper {
   width: 100%;
   height: 180px;
-  object-fit: cover;
+  background: #f0f0f0;
   border-radius: 8px;
+  overflow: hidden;
+}
+
+.event-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .date,
