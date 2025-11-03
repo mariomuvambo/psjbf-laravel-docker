@@ -7,33 +7,20 @@
       
       <form @submit.prevent="login" class="login-form">
         <div class="form-group">
-          <input 
-            type="email" 
-            v-model="email" 
-            placeholder="Email" 
-            class="form-control" 
-            required 
-          />
+          <input type="email" v-model="email" placeholder="Email" class="form-control" required />
         </div>
 
         <div class="form-group">
-          <input 
-            type="password" 
-            v-model="password" 
-            placeholder="Senha" 
-            class="form-control" 
-            required 
-          />
+          <input type="password" v-model="password" placeholder="Senha" class="form-control" required />
         </div>
 
-        <button type="submit" class="btn btn-primary w-100">Entrar</button>
-        
+        <button type="submit" class="btn btn-primary w-100" :disabled="loading">
+          {{ loading ? 'Entrando...' : 'Entrar' }}
+        </button>
+
         <button type="button" class="btn btn-google w-100" @click="loginWithGoogle">
-        <img 
-          src="https://img.icons8.com/color/24/google-logo.png" 
-          alt="Google" 
-          class="google-icon"
-        />
+          <img src="https://img.icons8.com/color/24/google-logo.png" alt="Google" class="google-icon" />
+          Entrar com Google
         </button>
 
         <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
@@ -57,10 +44,25 @@ export default {
       email: "",
       password: "",
       errorMessage: "",
+      loading: false,
     };
+  },
+    mounted() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    const user = JSON.parse(decodeURIComponent(params.get("user") || "{}"));
+
+    if (token) {
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      this.$router.push("/dashboard");
+    } else {
+      this.$router.push("/login");
+    }
   },
   methods: {
     async login() {
+      this.loading = true;
       try {
         const response = await axios.post("/login", {
           email: this.email,
@@ -73,10 +75,13 @@ export default {
         this.$router.push("/dashboard");
       } catch (error) {
         this.errorMessage = "Credenciais inválidas. Tente novamente.";
+      } finally {
+        this.loading = false;
       }
     },
     loginWithGoogle() {
-      window.location.href = "http://localhost:8000/api/auth/google";
+      // produção
+      window.location.href = "https://psjbf.onrender.com/api/auth/google";
     },
   },
 };

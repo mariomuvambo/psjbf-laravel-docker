@@ -1,17 +1,17 @@
 <?php
 
 namespace App\Http\Controllers\Auth;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Laravel\Socialite\Facades\Socialite;
 use App\Models\User;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 
 class GoogleController extends Controller
 {
-    //
-
     public function redirectToGoogle()
     {
         return Socialite::driver('google')->stateless()->redirect();
@@ -19,20 +19,30 @@ class GoogleController extends Controller
 
     public function handleGoogleCallback()
     {
-        $googleUser = Socialite::driver('google')->stateless()->user();
+        try {
+            $googleUser = Socialite::driver('google')->stateless()->user();
 
-        $user = User::firstOrCreate(
-            ['email' => $googleUser->getEmail()],
-            [
-                'name' => $googleUser->getName(),
-                'password' => bcrypt(Str::random(16)), // senha aleatória
-                'email_verified_at' => now(),
-            ]
-        );
+            $user = User::firstOrCreate(
+                ['email' => $googleUser->getEmail()],
+                [
+                    'nome' => $googleUser->getName(),
+                    'email' => $googleUser->getEmail(),
+                    'password' => Hash::make(Str::random(16)),
+                    'email_verified_at' => now(),
+                    'tipo_usuario' => 'fiel',
+                    'foto' => $googleUser->getAvatar(),
+                ]
+            );
 
-        // Autenticar o usuário e gerar token
-        $token = $user->createToken('google_token')->plainTextToken;
+            $token = $user->createToken('google_token')->plainTextToken;
 
-        return redirect("http://127.0.0.1:8000/dashboard?token=$token&user=" . urlencode(json_encode($user)));
+            // Redireciona de volta ao frontend com token + dados
+            $redirectUrl = "https://psjbf.onrender.com/login-success?token={$token}&user=" . urlencode(json_encode($user));
+
+            return redirect($redirectUrl);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Erro no login com Google: ' . $e->getMessage()], 500);
+        }
     }
 }
