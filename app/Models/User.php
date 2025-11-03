@@ -58,23 +58,22 @@ class User extends Authenticatable
 
 public function getFotoUrlAttribute()
 {
-    if (!$this->foto) {
-        return null;
-    }
+    if (!$this->foto) return 'https://via.placeholder.com/150?text=Sem+Foto';
 
-    // Se já é uma URL completa
+    // Se já for uma URL completa
     if (str_starts_with($this->foto, 'http')) {
         return $this->foto;
     }
 
-    // Se usa o R2 (via S3 compatível)
     try {
+        // Primeiro tenta via S3 (Cloudflare R2)
         return \Storage::disk('s3')->temporaryUrl($this->foto, now()->addMinutes(10));
-    } catch (\Exception $e) {
-        // Se falhar (por exemplo em local), usa o storage público
+    } catch (\Throwable $e) {
+        // Se falhar, tenta localmente
         return asset('storage/' . $this->foto);
     }
 }
+
 
 
     // Relacionamento Many-to-Many com Aviso
