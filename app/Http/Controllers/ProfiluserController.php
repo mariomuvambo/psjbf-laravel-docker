@@ -57,36 +57,44 @@ class ProfiluserController extends Controller
         return response()->json($profile, 200);
     }
 
-    public function update(Request $request, $id)
+    public function updateProfile(Request $request)
     {
-        $profile = Profiluser::findOrFail($id);
+        $user = Auth::user();
 
-        $validated = $request->validate([
-            'name' => 'nullable|string|max:255',
-            'surname' => 'nullable|string|max:255',
-            'date_birth' => 'nullable|date',
-            'nucleo' => 'nullable|string|max:255',
-            'e_membro' => 'nullable|boolean',
-            'minister' => 'nullable|string|max:255',
-            'image' => 'nullable|image|max:2048',
+        $request->validate([
+            'nome' => 'nullable|string|max:255',
+            'apelido' => 'nullable|string|max:255',
+            'telefone' => 'nullable|string|max:20',
+            'endereco' => 'nullable|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // 5MB
         ]);
 
-        if ($request->hasFile('image')) {
-            // Deleta imagem antiga do R2
-            if ($profile->image && Storage::disk('s3')->exists($profile->image)) {
-                Storage::disk('s3')->delete($profile->image);
+        // 🔹 Atualiza os campos normais
+        $user->fill($request->only(['nome', 'apelido', 'telefone', 'endereco']));
+
+        // 🔹 Upload da foto (se enviada)
+        if ($request->hasFile('foto')) {
+            $file = $request->file('foto');
+            $path = 'fotos/' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+            // Envia para Cloudflare R2
+            Storage::disk('s3')->put($path, file_get_contents($file), 'public');
+
+            // Remove a foto antiga, se existir
+            if ($user->foto && Storage::disk('s3')->exists($user->foto)) {
+                Storage::disk('s3')->delete($user->foto);
             }
 
-            // Envia nova
-            $validated['image'] = $request->file('image')->store('profilusers', 's3');
+            // Atualiza o caminho no banco
+            $user->foto = $path;
         }
 
-        $profile->update($validated);
+        $user->save();
 
         return response()->json([
-            'message' => '✅ Perfil atualizado com sucesso!',
-            'data' => $profile
-        ], 200);
+            'message' => 'Perfil atualizado com sucesso!',
+            'user' => $user->fresh(), // Retorna o user atualizado com foto_url
+        ]);
     }
 
     public function destroy($id)

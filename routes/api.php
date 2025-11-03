@@ -165,6 +165,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Perfil do usuário
  // Rota personalizada vem primeiro
 Route::get('/profilusers/me', [ProfiluserController::class, 'me'])->name('profilusers.me');
+Route::post('/profiluser/update', [ProfiluserController::class, 'updateProfile']);
 
 // Depois o resource
 Route::apiResource('profilusers', ProfiluserController::class);
