@@ -163,7 +163,13 @@ Route::middleware('auth:sanctum')->group(function () {
     
 
     // Perfil do usuário
-    Route::apiResource('profilusers', ProfiluserController::class);
+ // Rota personalizada vem primeiro
+Route::get('/profilusers/me', [ProfiluserController::class, 'me'])->name('profilusers.me');
+
+// Depois o resource
+Route::apiResource('profilusers', ProfiluserController::class);
+
+    
     Route::get('/user/processo', [ProfiluserController::class, 'processo']);
 
 
