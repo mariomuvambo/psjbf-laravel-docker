@@ -14,32 +14,14 @@ class EventController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-public function __construct()
-    {
-        // Remove autenticação para o index (listar eventos)
-        $this->middleware('auth:sanctum')->except(['index']);
-    }
 
 public function index()
 {
-    $events = Event::orderBy('date', 'asc')->get()->map(function ($event) {
-        return [
-            'id' => $event->id,
-            'title' => $event->title,
-            'date' => $event->date,
-            'time' => $event->time,
-            'location' => $event->location,
-            'description' => $event->description,
-            'image' => $event->image,
-            // 🧠 Aqui montamos a URL completa para o Cloudflare R2:
-            'image_url' => Storage::disk('s3')->url($event->image),
-            'created_at' => $event->created_at,
-            'updated_at' => $event->updated_at,
-        ];
-    });
+    $events = Event::orderBy('date', 'asc')->get();
 
     return response()->json($events);
 }
+
 
 
     /**

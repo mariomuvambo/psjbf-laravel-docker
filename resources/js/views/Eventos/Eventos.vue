@@ -33,12 +33,13 @@
           >
             <div class="event-card shadow-sm text-center w-100">
               <div class="image-wrapper">
-                <img
-                  :src="getImageUrl(event.image_url || event.image)"
+               <img
+                  :src="event.image_url || placeholder"
                   :alt="`Imagem de ${event.title}`"
                   class="event-image"
                   @error="handleImageError"
                 />
+
               </div>
 
               <h5 class="fw-bold mt-3 text-maroon">{{ event.title }}</h5>

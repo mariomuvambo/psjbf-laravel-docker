@@ -20,14 +20,21 @@ class Event extends Model
     ];
 
     protected $appends = ['image_url'];
-
-    public function getImageUrlAttribute()
-    {
-        if (!$this->image) {
-            return null;
-        }
-
-        $base = env('AWS_URL', 'https://pub-94c6e2cf641753af5aa27dbd6caef9e0.r2.dev');
-        return "{$base}/{$this->image}";
+    
+   public function getImageUrlAttribute()
+{
+    if (!$this->image) {
+        return null;
     }
+
+    // Se já vier URL completa, retorna como está
+    if (str_starts_with($this->image, 'http')) {
+        return $this->image;
+    }
+
+    // Cria URL temporária (válida por 10 minutos)
+    return Storage::disk('s3')->temporaryUrl($this->image, now()->addMinutes(10));
+}
+
+
 }
