@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
 
 class ResetPasswordController extends Controller
 {
-    //
-
     public function reset(Request $request)
-    {
+    { 
         $request->validate([
             'token' => 'required',
             'email' => 'required|email',
@@ -26,8 +26,8 @@ class ResetPasswordController extends Controller
             }
         );
 
-        return $status == Password::PASSWORD_RESET
-                    ? response()->json(['message' => 'Senha redefinida com sucesso.'])
-                    : response()->json(['message' => 'Erro ao redefinir senha.'], 400);
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Senha redefinida com sucesso.'])
+            : response()->json(['message' => __($status)], 400);
     }
 }

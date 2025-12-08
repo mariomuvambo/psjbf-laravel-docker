@@ -7,17 +7,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 
 class ForgotPasswordController extends Controller
-{
-    //
-
+{ 
     public function sendResetLinkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
 
         $status = Password::sendResetLink($request->only('email'));
 
-        return $status === Password::RESET_LINK_SENT
-                    ? response()->json(['message' => 'Link de redefinição enviado!'])
-                    : response()->json(['message' => 'Erro ao enviar link.'], 400);
+        if ($status === Password::RESET_LINK_SENT) {
+            return response()->json(['message' => 'Link de redefinição enviado!']);
+        }
+
+        return response()->json(['message' => __($status)], 400);
     }
 }

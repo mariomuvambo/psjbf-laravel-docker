@@ -258,13 +258,13 @@ onMounted(carregarDadosIniciais)
         <footer class="footer mt-auto">
           <div class="footer-container container">
             <div class="footer-section">
-              <h3>Igreja São Francisco</h3>
+              <h3>Paróquia São João Baptista do Fomento</h3>
               <p>Paróquia dedicada à fé, caridade e comunidade.</p>
             </div>
             <div class="footer-section">
               <h3>Contato</h3>
               <p>Email: paroquia@igreja.org</p>
-              <p>Telefone: (21) 99999-9999</p>
+              <p>Telefone: (+258) 84 123 4567</p>
             </div>
             <div class="footer-section">
               <h3>Redes Sociais</h3>

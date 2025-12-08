@@ -15,7 +15,7 @@
 
         <!-- Botão de Voltar -->
         <div class="mb-3">
-          <router-link to="/painel/Sacerdote" class="btn btn-outline-secondary">
+          <router-link to="/dashboard/painel/Sacerdote" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-2"></i> Voltar
           </router-link>
         </div>

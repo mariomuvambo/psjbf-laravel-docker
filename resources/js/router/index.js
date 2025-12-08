@@ -38,6 +38,7 @@ import PedidosAprovados from "@/views/Sacerdote/PedidosAprovados.vue";
 import TodosBatizados from "@/views/Sacerdote/TodosBatizados.vue";
 import AnaliseBatptismo from "@/views/Sacerdote/AnaliseBatptismo.vue";
 import PainelCasamento from "@/views/Sacerdote/casamento/PainelCasamento.vue";
+import LoginSuccess from '@/views/LoginSuccess.vue';
 
 const routes = [
   // 🌐 Rotas públicas
@@ -69,6 +70,7 @@ const routes = [
       { path: "missas", name: "Missas", component: Missas },
       { path: "leituras", name: "Leituras", component: Leituras },
       { path: "aniversariantes", name: "AniversarianteList", component: AniversarianteList },
+      { path: '/login-success', name: 'LoginSuccess', component: LoginSuccess},
 
       // 👑 Admin
       {
@@ -77,7 +79,7 @@ const routes = [
         component: AdminUsuarios,
         meta: { requiresAdmin: true },
       },
-
+ 
       // ✝️ Sacerdote
       { path: "sacerdote/painel", name: "PainelSacerdote", component: PainelSacerdote },
       { path: "sacerdote/batismos/aprovados", name: "PedidosAprovados", component: PedidosAprovados },

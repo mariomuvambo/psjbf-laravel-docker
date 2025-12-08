@@ -29,7 +29,7 @@
               <div class="card-body">
                 <h4 class="card-title text-success">{{ minister.newMinister }}</h4>
                 <ul class="list-unstyled text-secondary">
-                  <li><strong>Descrição:</strong> {{ minister.finally }}</li>
+                  <li><strong>Descrição:</strong> {{ minister.description }}</li>
                   <li><strong>Responsável Principal:</strong> {{ minister.responseMinister }}</li>
                   <li><strong>Adjunto:</strong> {{ minister.responseAdjunto }}</li>
                   <li><strong>Setor Geral:</strong> {{ minister.SectorGeral }}</li>

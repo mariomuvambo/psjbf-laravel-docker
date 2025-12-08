@@ -66,7 +66,7 @@
             <tbody>
               <tr v-for="min in ministers" :key="min.id">
                 <td>{{ min.newMinister }}</td>
-                <td>{{ min.description }}</td>
+                <td>{{ min.description }}</td> 
                 <td>{{ min.responseMinister }}</td>
                 <td>{{ min.responseAdjunto }}</td>
                 <td>{{ min.SectorGeral }}</td>

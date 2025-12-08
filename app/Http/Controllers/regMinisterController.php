@@ -15,7 +15,7 @@ class RegMinisterController extends Controller
 
     // ✅ Criar novo ministro
     public function store(Request $request)
-    {
+    { 
         $validated = $request->validate([
             'newMinister' => 'required|string|max:255',
             'description' => 'nullable|string',

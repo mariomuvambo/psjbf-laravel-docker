@@ -30,7 +30,7 @@
         </div>
 
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-4 gap-2">
-          <router-link to="/painel/Sacerdote" class="btn btn-outline-secondary">
+          <router-link to="/dashboard/sacerdote/painel" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left me-2"></i> Voltar
           </router-link>
 
