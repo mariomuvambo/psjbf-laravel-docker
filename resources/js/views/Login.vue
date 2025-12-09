@@ -81,10 +81,10 @@ export default {
     },
     loginWithGoogle() {
   // Produção
-  // window.location.href = "https://psjbf.onrender.com/api/auth/google/redirect";
+  window.location.href = "https://psjbf.onrender.com/api/auth/google/redirect";
 
   // Para desenvolvimento local
- window.location.href = 'http://localhost:8000/api/auth/google/redirect';
+//  window.location.href = 'http://localhost:8000/api/auth/google/redirect';
 }, 
 
   },
