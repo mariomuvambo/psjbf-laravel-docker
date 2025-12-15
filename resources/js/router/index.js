@@ -45,9 +45,14 @@ const routes = [
   { path: "/", name: "Home", component: Home },
   { path: "/login", name: "Login", component: Login },
   { path: "/register", name: "Register", component: Register },
-  { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
-  { path: "/reset-password", name: "ResetPassword", component: ResetPassword },
+  // { path: "/forgot-password", name: "ForgotPassword", component: ForgotPassword },
+  // { path: "/reset-password", name: "ResetPassword", component: ResetPassword },
   { path: "/google-success", name: "GoogleSuccess", component: GoogleSuccess },
+
+  {  path: "/recuperar-senha", name: "recuperar", component: ForgotPassword},
+  { path: "/reset-password", name: "reset", component: ResetPassword },
+
+
 
   // 🔒 Rotas com layout fixo (painel)
   {

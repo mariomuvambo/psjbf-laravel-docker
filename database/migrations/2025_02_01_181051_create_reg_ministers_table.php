@@ -9,13 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('reg_ministers', function (Blueprint $table) {
-            $table->id();
-            $table->string('newMinister');
-            $table->text('description')->nullable(); // ✅ renomeado de "finally"
-            $table->string('responseMinister');
-            $table->string('responseAdjunto');
-            $table->string('SectorGeral');
-            $table->string('SectorMinister');
+             $table->id();
+            $table->string('new_minister');
+            $table->text('description')->nullable();
+            $table->string('response_minister');
+            $table->string('response_adjunto');
+            $table->string('sector_geral');
+            $table->string('sector_minister');
             $table->timestamps();
         });
     }
@@ -25,3 +25,4 @@ return new class extends Migration
         Schema::dropIfExists('reg_ministers');
     }
 };
+ 

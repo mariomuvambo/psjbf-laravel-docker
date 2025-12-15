@@ -16,7 +16,7 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label class="form-label">Nome do Ministério</label>
-                  <input v-model="form.newMinister" type="text" class="form-control" required />
+                  <input v-model="form.new_minister" type="text" class="form-control" required />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Descrição</label>
@@ -24,19 +24,19 @@
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Responsável</label>
-                  <input v-model="form.responseMinister" type="text" class="form-control" required />
+                  <input v-model="form.response_minister" type="text" class="form-control" required />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Adjunto</label>
-                  <input v-model="form.responseAdjunto" type="text" class="form-control" required />
+                  <input v-model="form.response_adjunto" type="text" class="form-control" required />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Setor Geral</label>
-                  <input v-model="form.SectorGeral" type="text" class="form-control" required />
+                  <input v-model="form.sector_geral" type="text" class="form-control" required />
                 </div>
                 <div class="col-md-6">
                   <label class="form-label">Setor do Ministério</label>
-                  <input v-model="form.SectorMinister" type="text" class="form-control" required />
+                  <input v-model="form.sector_minister" type="text" class="form-control" required />
                 </div>
               </div>
 
@@ -65,12 +65,12 @@
             </thead>
             <tbody>
               <tr v-for="min in ministers" :key="min.id">
-                <td>{{ min.newMinister }}</td>
+                <td>{{ min.new_minister }}</td>
                 <td>{{ min.description }}</td> 
-                <td>{{ min.responseMinister }}</td>
-                <td>{{ min.responseAdjunto }}</td>
-                <td>{{ min.SectorGeral }}</td>
-                <td>{{ min.SectorMinister }}</td>
+                <td>{{ min.response_minister }}</td>
+                <td>{{ min.response_adjunto }}</td>
+                <td>{{ min.sector_geral }}</td>
+                <td>{{ min.sector_minister }}</td>
                 <td class="text-center">
                   <button class="btn btn-sm btn-warning me-2" @click="editMinister(min)">
                     <i class="bi bi-pencil"></i>
@@ -105,18 +105,18 @@ export default {
       ministers: [],
       form: {
         id: null,
-        newMinister: '',
+        new_minister: '',
         description: '',
-        responseMinister: '',
-        responseAdjunto: '',
-        SectorGeral: '',
-        SectorMinister: '',
+        response_minister: '',
+        response_adjunto: '',
+        sector_geral: '',
+        sector_minister: '',
       },
     }
   },
   methods: {
     async fetchMinisters() {
-      try {
+      try { 
         const { data } = await axios.get('/reg_ministers')
         this.ministers = data
       } catch (err) {
@@ -154,12 +154,12 @@ export default {
     resetForm() {
       this.form = {
         id: null,
-        newMinister: '',
+        new_minister: '',
         description: '',
-        responseMinister: '',
-        responseAdjunto: '',
-        SectorGeral: '',
-        SectorMinister: '',
+        response_minister: '',
+        response_adjunto: '',
+        sector_geral: '',
+        sector_minister: '',
       }
     },
   },

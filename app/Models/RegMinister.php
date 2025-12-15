@@ -9,14 +9,15 @@ class RegMinister extends Model
 {
     use HasFactory;
    
-    protected $fillable = [
-        'newMinister',
-        'description',   
-        'responseMinister',
-        'responseAdjunto',
-        'SectorGeral',
-        'SectorMinister',
-    ];
+        protected $fillable = [
+            'new_minister',
+            'description',
+            'response_minister',
+            'response_adjunto',
+            'sector_geral',
+            'sector_minister',
+        ];
+
 
 
     // Relacionamento com UserMinister

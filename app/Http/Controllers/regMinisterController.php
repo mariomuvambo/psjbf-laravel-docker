@@ -17,12 +17,12 @@ class RegMinisterController extends Controller
     public function store(Request $request)
     { 
         $validated = $request->validate([
-            'newMinister' => 'required|string|max:255',
+            'new_minister' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'responseMinister' => 'required|string|max:255',
-            'responseAdjunto' => 'required|string|max:255',
-            'SectorGeral' => 'required|string|max:255',
-            'SectorMinister' => 'required|string|max:255',
+            'response_minister' => 'required|string|max:255',
+            'response_adjunto' => 'required|string|max:255',
+            'sector_geral' => 'required|string|max:255',
+            'sector_minister' => 'required|string|max:255',
         ]);
 
         $minister = RegMinister::create($validated);
@@ -46,12 +46,12 @@ class RegMinisterController extends Controller
         $minister = RegMinister::findOrFail($id);
 
         $validated = $request->validate([
-            'newMinister' => 'sometimes|string|max:255',
+            'new_minister' => 'sometimes|string|max:255',
             'description' => 'sometimes|string|nullable',
-            'responseMinister' => 'sometimes|string|max:255',
-            'responseAdjunto' => 'sometimes|string|max:255',
-            'SectorGeral' => 'sometimes|string|max:255',
-            'SectorMinister' => 'sometimes|string|max:255',
+            'response_minister' => 'sometimes|string|max:255',
+            'response_adjunto' => 'sometimes|string|max:255',
+            'sector_geral' => 'sometimes|string|max:255',
+            'sector_minister' => 'sometimes|string|max:255',
         ]);
 
         $minister->update($validated);

@@ -45,6 +45,12 @@ Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallb
 Route::get('/auth/google', [GoogleController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
 
+// recuperar senha 
+// Recuperação de senha
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
+Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
+
+
 // oracoes 
     Route::get('/oracoes/ultimas', [OracaoController::class, 'ultimasOracoes']);
     Route::get('/missa/hoje', [MassController::class, 'todayReadings']);

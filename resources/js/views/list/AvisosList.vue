@@ -35,7 +35,9 @@
                   <li><i class="fas fa-calendar-alt me-2"></i><strong>Evento:</strong> {{ formatarData(aviso.date_realize) }}</li>
                   <li><i class="fas fa-map-marker-alt me-2"></i><strong>Local:</strong> {{ aviso.address }}</li>
                   <li><i class="fas fa-clock me-2"></i><strong>Hora:</strong> {{ formatarHora(aviso.hora) }}</li>
-                  <li><i class="fas fa-file-alt me-2"></i><strong>Descrição:</strong> {{ formatarHora(aviso.description) }}</li>
+                  <!-- <li><i class="fas fa-file-alt me-2"></i><strong>Descrição:</strong> {{ formatarHora(aviso.description) }}</li> -->
+                  <li><i class="fas fa-file-alt me-2"></i><strong>Descrição:</strong> {{ aviso.description }}</li>
+
 
 
 

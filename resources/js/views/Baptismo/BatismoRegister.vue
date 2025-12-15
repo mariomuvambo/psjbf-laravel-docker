@@ -15,19 +15,19 @@
         <!-- Formulário de Registro -->
         <div class="card shadow-lg rounded-4 mb-5">
           <div class="card-header bg-danger text-white text-center">
-            <h1 class="h4 fw-bold">Registro de Batismo</h1>
+            <h1 class="h4 fw-bold">Registro de Baptismo</h1>
             <p class="fst-italic mb-0">O pedido será analisado por um sacerdote antes da confirmação.</p>
           </div>
 
           <form @submit.prevent="submitForm" enctype="multipart/form-data" class="card-body bg-white">
             <!-- Alerta Informativo -->
             <div class="alert alert-warning">
-              <strong>Atenção:</strong> Após o envio, o batismo será avaliado por um sacerdote. Você será notificado sobre o estado.
+              <strong>Atenção:</strong> Após o envio, o baptismo será avaliado por um sacerdote. Você será notificado sobre o estado.
             </div>
 
             <!-- Dados do Batizando -->
             <section class="mb-4">
-              <h5 class="text-danger fw-semibold mb-3">Dados do Batizando</h5>
+              <h5 class="text-danger fw-semibold mb-3">Dados do Baptizando</h5>
               <div class="row g-3">
                 <div class="col-md-6">
                   <input v-model="form.nome_batizando" type="text" class="form-control" placeholder="Nome do Batizando" required />
